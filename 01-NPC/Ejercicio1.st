@@ -18,9 +18,10 @@ interactuarCon: unPersonajeJugador
 	^self responderSegunCantidadDeInteraccionesCon: unPersonajeJugador.
 ! !
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/28/2021 02:24:43'!
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 01:23:10'!
 olvidar
-	almacenadorDeInteracciones := Dictionary new.! !
+	almacenadorDeInteracciones := Dictionary new.
+	cantidadDeInteracciones := 1! !
 
 
 !CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 02:24:43'!
@@ -30,36 +31,35 @@ incrementarInteraccionesPara: unPersonajeJugador
 	cantidadActualDeInteraccionesPorPersonaje := almacenadorDeInteracciones at: unPersonajeJugador ifAbsent: [0].
 	almacenadorDeInteracciones at: unPersonajeJugador put: cantidadActualDeInteraccionesPorPersonaje + 1.! !
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 03:58:01'!
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 01:33:09'!
 responderSegunCantidadDeInteraccionesCon: unPersonajeJugador
 
 	cantidadDeInteracciones  := almacenadorDeInteracciones at: unPersonajeJugador .
 	
-	"Cuando se interactua con la curandera, tras haber ascendido un personaje a prometedor. La primera vez que se le hable como prometedor va a responder su primera frase.
-	La segunda vez va a responder la 2nda. Cuando se le agoten, va a seguir respondiendo con la 2nda  interacción (de prometedor) infinitas veces o va  a  ir intercalando entre las frases"
-	
-	cantidadDeInteracciones = 3 ifTrue: [
-		Riverwood ascensoDeClasificacionParaForastero: unPersonajeJugador.	
-		"cantidadDeInteracciones := 1."
-		self olvidar .
-	].
+	cantidadDeInteracciones > 3 ifTrue: [
+		CarolinaLaCuranderaDeSkyrim olvidar.
+	]. 
 
 	unPersonajeJugador indicarReputacionActual = 'prometedor' ifTrue: [
 		^ frasesParaPersonajesPrometedores at: (cantidadDeInteracciones min: frasesParaPersonajesPrometedores size).	
 	] 
 	ifFalse: [
+		cantidadDeInteracciones = 3 ifTrue: [
+			Riverwood ascensoDeClasificacionParaForastero: unPersonajeJugador.	
+			TreborElGuardiaDeSkyrim olvidar .
+		].
 		^ frasesParaPersonajesDesconocidos at: (cantidadDeInteracciones min: frasesParaPersonajesDesconocidos size)	
 	].! !
 
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 04:04:24'!
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	frasesParaPersonajesPrometedores := #('Salud aventurero!!' 'Toma esta pócima que te hará crecer el pelo. Y cuando tengas una aflicción, ven a verme' ).
 	frasesParaPersonajesDesconocidos := #('¿Estás enfermo forastero?' 'Ah, solo quieres conversar' 'Cuando tengas una aflicción, ven a verme' ).
-	cantidadDeInteracciones := 3.
-	almacenadorDeInteracciones := ((Dictionary new)).! !
+	cantidadDeInteracciones := 1.
+	almacenadorDeInteracciones := ((Dictionary new) add: (Hamilton->1); add: (Tirion->1); yourself).! !
 
 
 !classDefinition: #Hamilton category: 'Ejercicio1-PNJ-Episodio2'!
@@ -84,11 +84,11 @@ definirReputacion: reputacionADefinir
 indicarReputacionActual
 	^reputacion .! !
 
-!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 04:04:24'!
+!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
-	reputacion := 'prometedor'.! !
+	reputacion := 'desconocido'.! !
 
 
 !classDefinition: #PruebasInteracionesConCarolinaLaCurandera category: 'Ejercicio1-PNJ-Episodio2'!
@@ -181,14 +181,14 @@ test07CuandoLaCuranderaInteractuaPorSegundaVezConUnPersonajeCalificadoPorElPuebl
 ! !
 
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'cambio de opiniones' stamp: 'MV 9/28/2021 03:47:18'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'cambio de opiniones' stamp: 'MV 9/28/2021 21:15:05'!
 test08CuandoLaCuranderaTerminaSuRepertorioDeFrasesConUnPersonajeCambiaLaOpinionDelPuebloSobreElPersonajeAPrometedor
 	self olvidarInteraccionesYOpiniones.
 	self carolinaLaCurandera interactuarCon: self hamilton.
 	self carolinaLaCurandera interactuarCon: self hamilton.	
 	self carolinaLaCurandera interactuarCon: self hamilton.	
 	
-	Assert ifTrue: (self esVistoPorElPuebloComoPrometedor: self hamilton)! !
+	Assert isTrue: (self esVistoPorElPuebloComoPrometedor: self hamilton)! !
 
 !PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'cambio de opiniones' stamp: 'JMB 9/25/2021 12:51:00'!
 test09CuandoLaCuranderaCambiaLaOpinionDelPuebloSobreElPersonajeAPrometedorReiniciaSuHiloDeDialogoConElPersonaje
@@ -228,7 +228,7 @@ treborElGuardia
 	^ TreborElGuardiaDeSkyrim ! !
 
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 03:38:09'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 20:36:07'!
 esVistoPorElPuebloComoPrometedor: unPersonaje
 	unPersonaje indicarReputacionActual = 'prometedor' ifTrue: [
 		^ true.
@@ -246,12 +246,13 @@ hacerQueRiverwoodOlvideTodasSusCalificaciones
 	Riverwood primeraClasificacionAlForastero: Hamilton .
 	Riverwood  primeraClasificacionAlForastero: Tirion .! !
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 03:01:28'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:02:07'!
 hacerQueRiverwoodVeaPrometedorAHamilton
-	Hamilton definirReputacion: 'prometedor'.! !
+	Riverwood ascensoDeClasificacionParaForastero: Hamilton .! !
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/25/2021 12:48:36'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:06:31'!
 olvidarInteraccionesYOpiniones
+	PruebasInteracionesConTreborElGuardia  hacerQueElGuardiaOlvideSusInteracciones .
 	self hacerQueLaCuranderaOlvideSusInteracciones.	
 	self hacerQueRiverwoodOlvideTodasSusCalificaciones.
 ! !
@@ -388,13 +389,14 @@ treborElGuardia
 hacerQueElGuardiaOlvideSusInteracciones
 	TreborElGuardiaDeSkyrim olvidar.! !
 
-!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/21/2021 20:53:36'!
+!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:01:33'!
 hacerQueRiverwoodOlvideTodasSusCalificaciones
-	"Implementar cuando sea necesario"! !
+	Riverwood primeraClasificacionAlForastero: Hamilton .
+	Riverwood  primeraClasificacionAlForastero: Tirion .! !
 
-!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 02:17:32'!
+!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:01:46'!
 hacerQueRiverwoodVeaPrometedorAHamilton
-	Riverwood primeraClasificacionAlForastero: Hamilton .! !
+	Riverwood ascensoDeClasificacionParaForastero: Hamilton .! !
 
 !PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/25/2021 12:52:12'!
 olvidarInteraccionesYOpiniones
@@ -455,7 +457,7 @@ definirReputacion: reputacionADefinir
 indicarReputacionActual
 	^reputacion .! !
 
-!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 04:04:24'!
+!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -482,9 +484,10 @@ interactuarCon: unPersonajeJugador
 	^self responderSegunCantidadDeInteraccionesCon: unPersonajeJugador.
 ! !
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/28/2021 00:38:40'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 01:23:21'!
 olvidar
-	almacenadorDeInteracciones := Dictionary new.! !
+	almacenadorDeInteracciones := Dictionary new.
+	cantidadDeInteracciones := 1.! !
 
 
 !TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 00:55:40'!
@@ -507,14 +510,14 @@ responderSegunCantidadDeInteraccionesCon: unPersonajeJugador
 	].! !
 
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 04:04:24'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	frasesParaPersonajesPrometedores := #('Bienvenido aventurero!!' 'Espero que tengas una buena estadia en Riverwood' ).
 	frasesParaPersonajesDesconocidos := #('Hola forastero' '¿Todo bien?' '¿Algún problema?' ).
-	cantidadDeInteracciones := 60.
-	almacenadorDeInteracciones := ((Dictionary new) add: (Hamilton->59); yourself).! !
+	cantidadDeInteracciones := 1.
+	almacenadorDeInteracciones := ((Dictionary new)).! !
 
 CarolinaLaCuranderaDeSkyrim initializeAfterFileIn!
 Hamilton initializeAfterFileIn!
