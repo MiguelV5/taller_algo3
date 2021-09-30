@@ -9,57 +9,63 @@ DenotativeObject subclass: #CarolinaLaCuranderaDeSkyrim
 
 !classDefinition: 'CarolinaLaCuranderaDeSkyrim class' category: 'Ejercicio1-PNJ-Episodio2'!
 CarolinaLaCuranderaDeSkyrim class
-	instanceVariableNames: 'frasesParaPersonajesPrometedores frasesParaPersonajesDesconocidos cantidadDeInteracciones almacenadorDeInteracciones'!
+	instanceVariableNames: 'frasesParaPersonajesPrometedores frasesParaPersonajesDesconocidos cantidadDeInteraccionesJugadorActual almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores'!
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/28/2021 02:24:43'!
-interactuarCon: unPersonajeJugador
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 02:45:41'!
+interactuarCon: unJugador
 
-	self incrementarInteraccionesPara: unPersonajeJugador .
-	^self responderSegunCantidadDeInteraccionesCon: unPersonajeJugador.
+	self incrementarCantidadDeInteraccionesEnAlmacenadorPara: unJugador .
+	^self responderSegunCantidadDeInteraccionesCon: unJugador.
 ! !
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 01:23:10'!
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 02:48:33'!
 olvidar
-	almacenadorDeInteracciones := Dictionary new.
-	cantidadDeInteracciones := 1! !
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores := Dictionary new.
+	cantidadDeInteraccionesJugadorActual := 1.! !
 
-
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 02:24:43'!
-incrementarInteraccionesPara: unPersonajeJugador
-
-	| cantidadActualDeInteraccionesPorPersonaje |
-	cantidadActualDeInteraccionesPorPersonaje := almacenadorDeInteracciones at: unPersonajeJugador ifAbsent: [0].
-	almacenadorDeInteracciones at: unPersonajeJugador put: cantidadActualDeInteraccionesPorPersonaje + 1.! !
-
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 01:33:09'!
-responderSegunCantidadDeInteraccionesCon: unPersonajeJugador
-
-	cantidadDeInteracciones  := almacenadorDeInteracciones at: unPersonajeJugador .
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 04:06:13'!
+olvidarParaJugador: unJugador
 	
-	cantidadDeInteracciones > 3 ifTrue: [
-		CarolinaLaCuranderaDeSkyrim olvidar.
-	]. 
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador put: 0 .! !
 
-	unPersonajeJugador indicarReputacionActual = 'prometedor' ifTrue: [
-		^ frasesParaPersonajesPrometedores at: (cantidadDeInteracciones min: frasesParaPersonajesPrometedores size).	
+
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 02:49:08'!
+incrementarCantidadDeInteraccionesEnAlmacenadorPara: unJugador
+
+	cantidadDeInteraccionesJugadorActual := almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador ifAbsent: [0].
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador put: cantidadDeInteraccionesJugadorActual + 1.! !
+
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 04:08:28'!
+responderSegunCantidadDeInteraccionesCon: unJugador
+
+	cantidadDeInteraccionesJugadorActual  := almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador .
+	
+	unJugador indicarReputacionActual = 'prometedor' ifTrue: [
+		^ frasesParaPersonajesPrometedores at: (cantidadDeInteraccionesJugadorActual min: frasesParaPersonajesPrometedores size).	
 	] 
 	ifFalse: [
-		cantidadDeInteracciones = 3 ifTrue: [
-			Riverwood ascensoDeClasificacionParaForastero: unPersonajeJugador.	
-			TreborElGuardiaDeSkyrim olvidar .
-		].
-		^ frasesParaPersonajesDesconocidos at: (cantidadDeInteracciones min: frasesParaPersonajesDesconocidos size)	
+		| cantidadDeInteraccionesPreviaAAscension |
+		cantidadDeInteraccionesPreviaAAscension := cantidadDeInteraccionesJugadorActual .
+		self verificacionDePosibleAscensoAPrometedor: unJugador .
+		^ frasesParaPersonajesDesconocidos at: (cantidadDeInteraccionesPreviaAAscension min: frasesParaPersonajesDesconocidos size)	
 	].! !
 
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 04:06:59'!
+verificacionDePosibleAscensoAPrometedor: unJugador
 
-!CarolinaLaCuranderaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
+	cantidadDeInteraccionesJugadorActual = 3 ifTrue: [
+			Riverwood ascensoDeClasificacionParaForastero: unJugador.	
+		].! !
+
+
+!CarolinaLaCuranderaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 04:10:13'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	frasesParaPersonajesPrometedores := #('Salud aventurero!!' 'Toma esta pócima que te hará crecer el pelo. Y cuando tengas una aflicción, ven a verme' ).
 	frasesParaPersonajesDesconocidos := #('¿Estás enfermo forastero?' 'Ah, solo quieres conversar' 'Cuando tengas una aflicción, ven a verme' ).
-	cantidadDeInteracciones := 1.
-	almacenadorDeInteracciones := ((Dictionary new) add: (Hamilton->1); add: (Tirion->1); yourself).! !
+	cantidadDeInteraccionesJugadorActual := 1.
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores := ((Dictionary new) add: (Hamilton->1); add: (Tirion->1); yourself).! !
 
 
 !classDefinition: #Hamilton category: 'Ejercicio1-PNJ-Episodio2'!
@@ -75,16 +81,17 @@ DenotativeObject subclass: #Hamilton
 Hamilton class
 	instanceVariableNames: 'reputacion'!
 
-!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 02:43:00'!
+!Hamilton class methodsFor: 'informacionPersonal' stamp: 'MV 9/28/2021 02:43:00'!
 definirReputacion: reputacionADefinir
 
 	reputacion := reputacionADefinir.! !
 
-!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 01:58:32'!
+!Hamilton class methodsFor: 'informacionPersonal' stamp: 'MV 9/28/2021 01:58:32'!
 indicarReputacionActual
 	^reputacion .! !
 
-!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
+
+!Hamilton class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 04:10:13'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -228,23 +235,18 @@ treborElGuardia
 	^ TreborElGuardiaDeSkyrim ! !
 
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 20:36:07'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 02:51:49'!
 esVistoPorElPuebloComoPrometedor: unPersonaje
-	unPersonaje indicarReputacionActual = 'prometedor' ifTrue: [
-		^ true.
-	]
-	ifFalse: [
-		^ false.
-	]! !
+	^ unPersonaje indicarReputacionActual = 'prometedor' .! !
 
 !PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 02:37:56'!
 hacerQueLaCuranderaOlvideSusInteracciones
 	CarolinaLaCuranderaDeSkyrim olvidar .! !
 
-!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/28/2021 02:45:27'!
+!PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 02:41:15'!
 hacerQueRiverwoodOlvideTodasSusCalificaciones
-	Riverwood primeraClasificacionAlForastero: Hamilton .
-	Riverwood  primeraClasificacionAlForastero: Tirion .! !
+	Riverwood clasificarForasteroPorDefecto: Hamilton .
+	Riverwood clasificarForasteroPorDefecto: Tirion .! !
 
 !PruebasInteracionesConCarolinaLaCurandera class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:02:07'!
 hacerQueRiverwoodVeaPrometedorAHamilton
@@ -389,10 +391,10 @@ treborElGuardia
 hacerQueElGuardiaOlvideSusInteracciones
 	TreborElGuardiaDeSkyrim olvidar.! !
 
-!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:01:33'!
+!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 02:41:26'!
 hacerQueRiverwoodOlvideTodasSusCalificaciones
-	Riverwood primeraClasificacionAlForastero: Hamilton .
-	Riverwood  primeraClasificacionAlForastero: Tirion .! !
+	Riverwood clasificarForasteroPorDefecto: Hamilton .
+	Riverwood  clasificarForasteroPorDefecto: Tirion .! !
 
 !PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'MV 9/30/2021 01:01:46'!
 hacerQueRiverwoodVeaPrometedorAHamilton
@@ -418,19 +420,21 @@ DenotativeObject subclass: #Riverwood
 Riverwood class
 	instanceVariableNames: ''!
 
-!Riverwood class methodsFor: 'ClasificacionDeReputaciones' stamp: 'MV 9/28/2021 03:05:45'!
-ascensoDeClasificacionParaForastero: unPersonajeJugador
+!Riverwood class methodsFor: 'ClasificacionDeReputaciones' stamp: 'MV 9/30/2021 04:07:07'!
+ascensoDeClasificacionParaForastero: unJugador
 
-	(unPersonajeJugador = Hamilton) | (unPersonajeJugador = Tirion) ifTrue: [ 
-		unPersonajeJugador  definirReputacion: 'prometedor'	.
+	(unJugador = Hamilton) | (unJugador = Tirion) ifTrue: [ 
+		unJugador  definirReputacion: 'prometedor'	.
+		TreborElGuardiaDeSkyrim olvidarParaJugador: unJugador .
+		CarolinaLaCuranderaDeSkyrim olvidarParaJugador: unJugador .
 	]
 ! !
 
-!Riverwood class methodsFor: 'ClasificacionDeReputaciones' stamp: 'MV 9/28/2021 02:35:29'!
-primeraClasificacionAlForastero: unPersonajeJugador
+!Riverwood class methodsFor: 'ClasificacionDeReputaciones' stamp: 'MV 9/30/2021 02:40:33'!
+clasificarForasteroPorDefecto: unJugador
 
-	(unPersonajeJugador = Hamilton) | (unPersonajeJugador = Tirion) ifTrue: [ 
-		unPersonajeJugador  definirReputacion: 'desconocido'	.
+	(unJugador = Hamilton) | (unJugador = Tirion) ifTrue: [ 
+		unJugador  definirReputacion: 'desconocido'	.
 	]
 ! !
 
@@ -448,16 +452,17 @@ DenotativeObject subclass: #Tirion
 Tirion class
 	instanceVariableNames: 'reputacion'!
 
-!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 01:52:01'!
+!Tirion class methodsFor: 'informacionPersonal' stamp: 'MV 9/28/2021 01:52:01'!
 definirReputacion: reputacionADefinir
 
 	reputacion := reputacionADefinir.! !
 
-!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/28/2021 01:58:48'!
+!Tirion class methodsFor: 'informacionPersonal' stamp: 'MV 9/28/2021 01:58:48'!
 indicarReputacionActual
 	^reputacion .! !
 
-!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
+
+!Tirion class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 04:10:13'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -475,49 +480,53 @@ DenotativeObject subclass: #TreborElGuardiaDeSkyrim
 
 !classDefinition: 'TreborElGuardiaDeSkyrim class' category: 'Ejercicio1-PNJ-Episodio2'!
 TreborElGuardiaDeSkyrim class
-	instanceVariableNames: 'frasesParaPersonajesPrometedores frasesParaPersonajesDesconocidos cantidadDeInteracciones almacenadorDeInteracciones'!
+	instanceVariableNames: 'frasesParaPersonajesPrometedores frasesParaPersonajesDesconocidos cantidadDeInteraccionesJugadorActual almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores'!
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/28/2021 01:04:29'!
-interactuarCon: unPersonajeJugador
-
-	self incrementarInteraccionesPara: unPersonajeJugador .
-	^self responderSegunCantidadDeInteraccionesCon: unPersonajeJugador.
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 02:28:10'!
+interactuarCon: unJugador 
+	
+	self incrementarCantidadDeInteraccionesEnAlmacenadorPara: unJugador .
+	^self responderSegunCantidadDeInteraccionesCon: unJugador.
 ! !
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 01:23:21'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 02:18:44'!
 olvidar
-	almacenadorDeInteracciones := Dictionary new.
-	cantidadDeInteracciones := 1.! !
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores := Dictionary new.
+	cantidadDeInteraccionesJugadorActual := 1.! !
 
-
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 00:55:40'!
-incrementarInteraccionesPara: unPersonajeJugador
-
-	| cantidadActualDeInteraccionesPorPersonaje |
-	cantidadActualDeInteraccionesPorPersonaje := almacenadorDeInteracciones at: unPersonajeJugador ifAbsent: [0].
-	almacenadorDeInteracciones at: unPersonajeJugador put: cantidadActualDeInteraccionesPorPersonaje + 1.! !
-
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/28/2021 04:03:59'!
-responderSegunCantidadDeInteraccionesCon: unPersonajeJugador
-
-	cantidadDeInteracciones  := (almacenadorDeInteracciones at: unPersonajeJugador).
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'MV 9/30/2021 04:05:59'!
+olvidarParaJugador: unJugador
 	
-	unPersonajeJugador indicarReputacionActual = 'prometedor' ifTrue: [
-		^ frasesParaPersonajesPrometedores at: (cantidadDeInteracciones min: frasesParaPersonajesPrometedores size).	
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador put: 0 .! !
+
+
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 02:27:23'!
+incrementarCantidadDeInteraccionesEnAlmacenadorPara: unJugador
+
+	cantidadDeInteraccionesJugadorActual := almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador ifAbsent: [0].
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador put: cantidadDeInteraccionesJugadorActual + 1.! !
+
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'MV 9/30/2021 01:54:06'!
+responderSegunCantidadDeInteraccionesCon: unJugador
+
+	cantidadDeInteraccionesJugadorActual  := (almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores at: unJugador).
+	
+	unJugador indicarReputacionActual = 'prometedor' ifTrue: [
+		^ frasesParaPersonajesPrometedores at: (cantidadDeInteraccionesJugadorActual min: frasesParaPersonajesPrometedores size).	
 	] 
 	ifFalse: [
-		^ frasesParaPersonajesDesconocidos at: (cantidadDeInteracciones min: frasesParaPersonajesDesconocidos size)	
+		^ frasesParaPersonajesDesconocidos at: (cantidadDeInteraccionesJugadorActual min: frasesParaPersonajesDesconocidos size)	
 	].! !
 
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 01:35:08'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'MV 9/30/2021 04:10:13'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
 	frasesParaPersonajesPrometedores := #('Bienvenido aventurero!!' 'Espero que tengas una buena estadia en Riverwood' ).
 	frasesParaPersonajesDesconocidos := #('Hola forastero' '¿Todo bien?' '¿Algún problema?' ).
-	cantidadDeInteracciones := 1.
-	almacenadorDeInteracciones := ((Dictionary new)).! !
+	cantidadDeInteraccionesJugadorActual := 1.
+	almacenadorDeCantidadDeInteraccionesDeTodosLosJugadores := ((Dictionary new)).! !
 
 CarolinaLaCuranderaDeSkyrim initializeAfterFileIn!
 Hamilton initializeAfterFileIn!
