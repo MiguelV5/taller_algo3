@@ -21,10 +21,11 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'testHelper' stamp: 'MV 10/9/2021 02:53:32'!
+!CustomerBookTest methodsFor: 'testHelper' stamp: 'MV 10/10/2021 18:10:17'!
 customerBookVerification: aCustomerBook forCustomer: aCustomer withBookQuantitiesPerAccess: quantitiesArray withStatement: statementSelectorToTest
 	
 	self assert: (quantitiesArray at: 1) equals: aCustomerBook numberOfActiveCustomers.
+	"un metodo para cada uno, asi queda más entendible solo con leerlo"
 	self assert: (quantitiesArray at: 2) equals: aCustomerBook numberOfSuspendedCustomers.
 	self assert: (quantitiesArray at: 3) equals: aCustomerBook numberOfCustomers.
 	
@@ -69,23 +70,24 @@ test03CanNotAddACustomerWithEmptyName
 			self assert: customerBook isEmpty ]
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/9/2021 01:41:50'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/10/2021 18:08:25'!
 test04CanNotRemoveAnInvalidCustomer
 	
 	| customerBook |
 			
 	customerBook := CustomerBook newWithCustomer: 'John Lennon'. 
-	"usar with (a costa del addCustomer) o no usar with"
 	
 	ExecutionFeatures new errorHandle: [ customerBook removeCustomerNamed: 'Paul McCartney'. self fail ] withErrorClass: NotFound withErrorVerification: [ :anError | 	
 	self assert: customerBook numberOfCustomers = 1. 
-	self assert: (customerBook includesCustomerNamed: 'John Lennon') ].
-	"No vi forma de sacar los closures con alguna abstraccion, si bien con esta queda claro en su metodo sigue habiendo codigo repetido"
-		
-	"Es preferible añadir una variable temporal adicional a la hora de instanciar una clase en los tests cuando se le quiere pasar un mensaje a la clase recien instanciada o es preferible dejar directamente algo del tipo 'unaClase new mensaje1: algo mensaje2:algo ...'   
-	No se si se entiende, tratamos de explicarlo lo más general posible para no enviar codigo por este canal, sino lo podriamos preguntar por privado"! !
+	self assert: (customerBook includesCustomerNamed: 'John Lennon') ]. "Concepto bien, pero nombres descriptivos de lo que hace y no sobre como lo implementa.
+	Un ejemplo podria ser Should not take more than(...)"
+	
+	"Ademas el ExecutionFeatures está demás porque no representa algo de la realidad del problema, debería ser algo dentro del CustomerBookTest."
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/9/2021 02:56:56'!
+	
+! !
+
+!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/10/2021 18:11:57'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney|
@@ -95,13 +97,14 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	
 	customerBook suspendCustomerNamed: paulMcCartney.
 	
-	CustomerBookTest new customerBookVerification: customerBook forCustomer: paulMcCartney withBookQuantitiesPerAccess: #(0 1 1) withStatement: #assert:.
-
+	self customerBookVerification: customerBook forCustomer: paulMcCartney withBookQuantitiesPerAccess: #(0 1 1) withStatement: #assert:.
+	"Modificar el customerBookVerification. No se entiende qué es lo que hace. 
+	ej. Verificacion de cantidad de clientes"
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/9/2021 02:56:47'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/10/2021 18:10:32'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney|
@@ -112,12 +115,12 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	customerBook suspendCustomerNamed: paulMcCartney.
 	customerBook removeCustomerNamed: paulMcCartney.
 	
-	CustomerBookTest new customerBookVerification: customerBook forCustomer: paulMcCartney withBookQuantitiesPerAccess: #(0 0 0) withStatement: #deny: . 
+	self customerBookVerification: customerBook forCustomer: paulMcCartney withBookQuantitiesPerAccess: #(0 0 0) withStatement: #deny: . 
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/9/2021 01:39:15'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/10/2021 18:13:20'!
 test07CanNotSuspendAnInvalidCustomer
 	
 	| customerBook |
@@ -166,13 +169,14 @@ initializeWithCustomer: aCustomer
 	! !
 
 
-!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/9/2021 02:58:43'!
+!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/10/2021 18:03:53'!
 addCustomerNamed: aName
 
 	aName isEmpty ifTrue: [ self signalCustomerNameCannotBeEmpty ].
-	((activeCustomers includes: aName) or: [suspendedCustomers includes: aName]) ifTrue: [ self signalCustomerAlreadyExists ].
+	(self includesCustomerNamed: aName) ifTrue: [ self signalCustomerAlreadyExists ].
 	
-	activeCustomers add: aName ! !
+	activeCustomers add: aName 
+	! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'MV 10/9/2021 04:02:49'!
 removeCustomerNamed: aName 
@@ -191,7 +195,7 @@ removeCustomerNamed: aName
 	
 ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/9/2021 03:51:21'!
+!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/10/2021 17:56:26'!
 searchAndDeleteCustomer: aCustomersName customerBookState: aCustomerBookType
 	
 	1 to: aCustomerBookType size do: 
@@ -204,9 +208,10 @@ searchAndDeleteCustomer: aCustomersName customerBookState: aCustomerBookType
 	].
 	
 	^ 'the customer was not found in this Book' .
-! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/9/2021 02:58:43'!
+	"Revisar mensajes de OrderCollections que simplifiquen la iteración"! !
+
+!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/10/2021 18:02:43'!
 suspendCustomerNamed: aName 
 	
 	(activeCustomers includes: aName) ifFalse: [^CantSuspend signal].
@@ -222,10 +227,10 @@ numberOfActiveCustomers
 	
 	^activeCustomers size! !
 
-!CustomerBook methodsFor: 'accessing' stamp: 'MV 10/9/2021 02:58:43'!
+!CustomerBook methodsFor: 'accessing' stamp: 'MV 10/10/2021 17:58:50'!
 numberOfCustomers
 	
-	^activeCustomers size + suspendedCustomers size! !
+	^ self numberOfActiveCustomers + self numberOfSuspendedCustomers.! !
 
 !CustomerBook methodsFor: 'accessing' stamp: 'MV 10/9/2021 02:58:29'!
 numberOfSuspendedCustomers
