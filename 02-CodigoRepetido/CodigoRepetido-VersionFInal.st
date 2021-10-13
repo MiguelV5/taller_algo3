@@ -21,16 +21,6 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'testHelper - public' stamp: 'MV 10/11/2021 15:45:55'!
-customersQuantitiesVerificationIn: aCustomerBook withExpectedQuantities: listOfExpectedQuantities 
-	
-	self activeCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 1).
-	self suspendedCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 2).
-	self totalCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 3).
-	
-	
-! !
-
 !CustomerBookTest methodsFor: 'testHelper - public' stamp: 'MV 10/11/2021 16:18:31'!
 ifThisManagementFails: anActionProneToFail withErrorType: anErrorType verifyThat: actionsToVerify
 	
@@ -44,6 +34,16 @@ shouldNotTakeMoreTimeThan: aTimeLimit toApply: aManagementToTheCustomerBook
 	resultingTime := self calculateTimeOf: aManagementToTheCustomerBook .
 
 	^ resultingTime < aTimeLimit.! !
+
+!CustomerBookTest methodsFor: 'testHelper - public' stamp: 'pb 10/13/2021 17:52:30'!
+verifyCustomersQuantitiesIn: aCustomerBook withExpectedQuantities: listOfExpectedQuantities 
+	
+	self activeCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 1).
+	self suspendedCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 2).
+	self totalCustomersQuantityIn: aCustomerBook shouldBe: (listOfExpectedQuantities at: 3).
+	
+	
+! !
 
 !CustomerBookTest methodsFor: 'testHelper - public' stamp: 'MV 10/11/2021 16:01:19'!
 verifyThatTheCustomer: aCustomer isIncludedIn: aCustomerBook
@@ -131,7 +131,7 @@ test04CanNotRemoveAnInvalidCustomer
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/11/2021 16:19:44'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'pb 10/13/2021 17:52:30'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney expectedCustomerQuantities |
@@ -142,13 +142,13 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	
 	expectedCustomerQuantities := OrderedCollection with: 0 with: 1 with: 1. 
 	
-	self customersQuantitiesVerificationIn: customerBook withExpectedQuantities: expectedCustomerQuantities.
+	self verifyCustomersQuantitiesIn: customerBook withExpectedQuantities: expectedCustomerQuantities.
 	self verifyThatTheCustomer: paulMcCartney isIncludedIn: customerBook.
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MV 10/11/2021 16:21:56'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'pb 10/13/2021 17:52:30'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
 	| customerBook paulMcCartney expectedCustomerQuantities |
@@ -161,7 +161,7 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	
 	expectedCustomerQuantities := OrderedCollection with: 0 with: 0 with: 0.
 	
-	self customersQuantitiesVerificationIn: customerBook withExpectedQuantities: expectedCustomerQuantities.
+	self verifyCustomersQuantitiesIn: customerBook withExpectedQuantities: expectedCustomerQuantities.
 	self verifyThatTheCustomer: paulMcCartney isNotIncludedIn: customerBook.
 	
 	
@@ -242,10 +242,10 @@ removeCustomerNamed: aName
 	
 ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'MV 10/11/2021 14:03:55'!
+!CustomerBook methodsFor: 'customer management' stamp: 'pb 10/13/2021 17:45:53'!
 searchAndRemoveIfFound: aCustomersName inCustomerList: aCustomerList
 	
-	^ aCustomerList remove: aCustomersName ifAbsent: ['the customer was not found in this Book'].
+	^ aCustomerList remove: aCustomersName ifAbsent: ['the customer was not found in this Book list'].
 	! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'MV 10/10/2021 18:02:43'!
