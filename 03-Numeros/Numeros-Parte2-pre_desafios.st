@@ -384,10 +384,10 @@ Numero subclass: #Entero
 	
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'MV 10/22/2021 20:54:36'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'MV 10/22/2021 21:43:48'!
 / aDivisor 
 	
-	^aDivisor divideThisDividendEntero: self.
+	^aDivisor divideAnEntero: self .
 	
 	! !
 
@@ -495,15 +495,15 @@ beSubstractedFromAnEntero: aMinuend
 	
 	^ Entero with: aMinuend integerValue - value.! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:53:51'!
-divideThisDividendEntero: aDividend
-
-	^Fraccion with: aDividend over: self.! !
-
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:00:48'!
-divideThisDividendFraccion: aDividend
+!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:44:01'!
+divideAFraccion: aDividend
 
 	^ aDividend numerator / (aDividend 	denominator  * self).! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:43:48'!
+divideAnEntero: aDividend
+
+	^Fraccion with: aDividend over: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -550,10 +550,10 @@ Numero subclass: #Fraccion
 	^aSubtrahend beSubstractedFromAFraccion: self.
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'MV 10/22/2021 21:01:01'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'MV 10/22/2021 21:44:01'!
 / aDivisor 
 
-	^aDivisor divideThisDividendFraccion: self.
+	^aDivisor divideAFraccion: self.
 ! !
 
 
@@ -656,15 +656,15 @@ beSubstractedFromAnEntero: aMinuend
 
 	^ aMinuend * self denominator - self numerator / self denominator.! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:53:51'!
-divideThisDividendEntero: aDividend
-
-	^(self denominator * aDividend ) / ( self numerator).! !
-
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:58:27'!
-divideThisDividendFraccion: aDividend
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:44:01'!
+divideAFraccion: aDividend
 
 	^ (aDividend numerator * denominator) / (aDividend denominator * numerator)! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:43:48'!
+divideAnEntero: aDividend
+
+	^(self denominator * aDividend ) / ( self numerator).! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
