@@ -460,67 +460,72 @@ isZero
 	
 	^self class with: value // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
-greatestCommonDivisorWith: anEntero 
-	
-	^self class with: (value gcd: anEntero integerValue)! !
-
-
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:10:23'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:10:23'!
 beAddedToAFraccion: anAdder
 
 	^ (anAdder denominator * self + anAdder numerator) / anAdder denominator .! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 19:58:40'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 19:58:40'!
 beAddedToAnEntero: anAugend
 
 	^Entero with: anAugend integerValue + self integerValue.! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 19:42:58'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/23/2021 19:42:58'!
 beMultipliedToAFraccion: aMultiplier
 
 	^ (aMultiplier numerator * self) / aMultiplier denominator.! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:02:02'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:02:02'!
 beMultipliedToAnEntero: aMultiplicand
 
 	 ^ Entero with: value * aMultiplicand integerValue.
 	! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:44:34'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:44:34'!
 beSubstractedFromAFraccion: aMinuend
 
 	^(aMinuend numerator - (self * aMinuend denominator))/ aMinuend denominator! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:23:38'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:23:38'!
 beSubstractedFromAnEntero: aMinuend
 	
 	^ Entero with: aMinuend integerValue - value.! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:44:01'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:44:01'!
 divideAFraccion: aDividend
 
 	^ aDividend numerator / (aDividend 	denominator  * self).! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 19:59:56'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 14:42:50'!
 divideAnEntero: aDividend
-
-	| greatestCommonDivisor newNumerator newDenominator|
 	
-	self mmm: aDividend .
+	| greatestCommonDivisor newNumerator newDenominator |
 	
-	"self isZero ifTrue: [ self class error: self class canNotDivideByZeroErrorDescription ].
-	self isNegative ifTrue:[ ^aDividend negated / self negated]."
+	"self ifDivisorIsZeroOrNegative: aDividend ."
 	
+	self isZero ifTrue: [ self class error: self class canNotDivideByZeroErrorDescription ].
+	self isNegative ifTrue:[ ^aDividend negated / self negated].
+	
+	"aDividend ifDividendIsZero."
 	aDividend isZero ifTrue: [ ^aDividend ].
 	
 	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
 	newNumerator := aDividend // greatestCommonDivisor.
 	newDenominator := self // greatestCommonDivisor.
 	
+	"newDenominator ifDenominatorIsOne."
+	
 	newDenominator isOne ifTrue: [ ^newNumerator ].
 
-	^Fraccion new initializeWith: newNumerator over: newDenominator! !
+	"resultado := Fraccion new initializeWith: newNumerator over: newDenominator."
+	
+	^Fraccion with: newNumerator over: newDenominator .
+	! !
+
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
+greatestCommonDivisorWith: anEntero 
+	
+	^self class with: (value gcd: anEntero integerValue)! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -558,8 +563,13 @@ fibonacci
 
 	^ Entero with: 1.! !
 
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 19:58:02'!
-mmm: xx 
+!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 14:05:43'!
+ifDividendIsZero
+
+	^self! !
+
+!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 13:58:56'!
+ifDivisorIsZeroOrNegative: aDivisor 
 
 	self class error: self class canNotDivideByZeroErrorDescription ! !
 
@@ -617,10 +627,10 @@ fibonacci
 
 	self error: Entero negativeFibonacciErrorDescription! !
 
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 19:58:13'!
-mmm: xx 
+!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 13:59:06'!
+ifDivisorIsZeroOrNegative: aDivisor
 
-	^ xx negated / self negated! !
+	^ aDivisor negated / self negated! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -645,6 +655,11 @@ Entero subclass: #Uno
 fibonacci
 
 	^ Entero with: 1.! !
+
+!Uno methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 14:08:16'!
+ifDenominatorIsOne
+
+	^self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -749,7 +764,7 @@ printOn: aStream
 		print: denominator ! !
 
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 19:43:14'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/23/2021 19:43:14'!
 beAddedToAFraccion: anAdder
 
 	 | newNumerator newDenominator |
@@ -760,22 +775,22 @@ beAddedToAFraccion: anAdder
 	^ newNumerator / newDenominator
 ! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 19:49:40'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 19:49:40'!
 beAddedToAnEntero: anAugend
 
 	^(anAugend * self denominator + self numerator) / self denominator.! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:03:00'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:03:00'!
 beMultipliedToAFraccion: aMultiplicand
 
 	^(numerator * aMultiplicand numerator) / (denominator * aMultiplicand denominator)! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:02:18'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:02:18'!
 beMultipliedToAnEntero: aMultiplicand
 
 	^(aMultiplicand * self numerator) / ( self denominator) ! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:35:58'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:35:58'!
 beSubstractedFromAFraccion: aMinuend
 
 	| newNumerator newDenominator |
@@ -785,17 +800,17 @@ beSubstractedFromAFraccion: aMinuend
 	
 	^newNumerator / newDenominator! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 20:25:33'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:25:33'!
 beSubstractedFromAnEntero: aMinuend
 
 	^ aMinuend * self denominator - self numerator / self denominator.! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:44:01'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:44:01'!
 divideAFraccion: aDividend
 
 	^ (aDividend numerator * denominator) / (aDividend denominator * numerator)! !
 
-!Fraccion methodsFor: 'as yet unclassified' stamp: 'MV 10/22/2021 21:43:48'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:43:48'!
 divideAnEntero: aDividend
 
 	^(self denominator * aDividend ) / ( self numerator).! !
