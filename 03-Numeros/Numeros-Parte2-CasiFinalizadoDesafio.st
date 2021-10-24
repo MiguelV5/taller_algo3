@@ -391,20 +391,11 @@ Numero subclass: #Entero
 	
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 15:50:28'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'MV 10/24/2021 14:56:21'!
 fibonacci
 
 	self subclassResponsibility.
 
-	"| one two |
-	
-	one := Entero with: 1.
-	two := Entero with: 2.
-	
-	self isNegative ifTrue: [self error: Entero negativeFibonacciErrorDescription ].	
-	(self isZero or: [self isOne]) ifTrue: [^one].
-	
-	^ (self - one) fibonacci + (self - two) fibonacci"
 		! !
 
 
@@ -460,20 +451,20 @@ isZero
 	
 	^self class with: value // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 20:10:23'!
-beAddedToAFraccion: anAdder
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 14:53:30'!
+beAddedToAFraccion: anAugend
 
-	^ (anAdder denominator * self + anAdder numerator) / anAdder denominator .! !
+	^ (anAugend denominator * self + anAugend numerator) / anAugend denominator .! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 19:58:40'!
 beAddedToAnEntero: anAugend
 
 	^Entero with: anAugend integerValue + self integerValue.! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/23/2021 19:42:58'!
-beMultipliedToAFraccion: aMultiplier
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 14:54:53'!
+beMultipliedToAFraccion: aMultiplicand
 
-	^ (aMultiplier numerator * self) / aMultiplier denominator.! !
+	^ (aMultiplicand numerator * self) / aMultiplicand denominator.! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/22/2021 21:02:02'!
 beMultipliedToAnEntero: aMultiplicand
@@ -764,13 +755,13 @@ printOn: aStream
 		print: denominator ! !
 
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/23/2021 19:43:14'!
-beAddedToAFraccion: anAdder
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 14:53:53'!
+beAddedToAFraccion: anAugend
 
 	 | newNumerator newDenominator |
 	
-	newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
-	newDenominator := denominator * anAdder denominator.
+	newNumerator := (numerator * anAugend denominator) + (denominator * anAugend numerator).
+	newDenominator := denominator * anAugend denominator.
 	
 	^ newNumerator / newDenominator
 ! !
