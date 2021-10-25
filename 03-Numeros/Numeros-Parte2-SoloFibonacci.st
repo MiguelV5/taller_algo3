@@ -507,7 +507,7 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'MV 10/23/2021 18:13:15'!
+!Entero class methodsFor: 'instance creation' stamp: 'MV 10/24/2021 21:00:11'!
 with: aValue 
 	
 	| correspondingSubclass |
@@ -515,7 +515,7 @@ with: aValue
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
-	correspondingSubclass := Entero subclasses detect: [:subclass | subclass verifyTheContainedValue: aValue ].
+	correspondingSubclass := Entero subclasses detect: [:subclass | subclass canHandle: aValue ].
 	
 	^correspondingSubclass new initalizeWith: aValue.
 	! !
@@ -528,7 +528,7 @@ Entero subclass: #Cero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 16:43:42'!
+!Cero methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 16:43:42'!
 fibonacci
 
 	^ Entero with: 1.! !
@@ -539,8 +539,8 @@ fibonacci
 Cero class
 	instanceVariableNames: ''!
 
-!Cero class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!Cero class methodsFor: 'handler' stamp: 'MV 10/24/2021 21:00:11'!
+canHandle: aValue
 	
 	^ aValue = 0
 	! !
@@ -553,7 +553,7 @@ Entero subclass: #EnteroMayorAUno
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!EnteroMayorAUno methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 16:56:21'!
+!EnteroMayorAUno methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 16:56:21'!
 fibonacci
 	
 	| one two |
@@ -569,8 +569,8 @@ fibonacci
 EnteroMayorAUno class
 	instanceVariableNames: ''!
 
-!EnteroMayorAUno class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!EnteroMayorAUno class methodsFor: 'handler' stamp: 'MV 10/24/2021 21:00:11'!
+canHandle: aValue
 
 	^ aValue > 1! !
 
@@ -582,7 +582,7 @@ Entero subclass: #EnteroNegativo
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 15:34:35'!
+!EnteroNegativo methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 15:34:35'!
 fibonacci
 
 	self error: Entero negativeFibonacciErrorDescription! !
@@ -593,8 +593,8 @@ fibonacci
 EnteroNegativo class
 	instanceVariableNames: ''!
 
-!EnteroNegativo class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!EnteroNegativo class methodsFor: 'handler' stamp: 'MV 10/24/2021 21:00:11'!
+canHandle: aValue
 	
 	^ aValue < 0! !
 
@@ -606,7 +606,7 @@ Entero subclass: #Uno
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Uno methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 15:34:44'!
+!Uno methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 15:34:44'!
 fibonacci
 
 	^ Entero with: 1.! !
@@ -617,8 +617,8 @@ fibonacci
 Uno class
 	instanceVariableNames: ''!
 
-!Uno class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!Uno class methodsFor: 'handler' stamp: 'MV 10/24/2021 21:00:11'!
+canHandle: aValue
 	
 	^ aValue = 1! !
 

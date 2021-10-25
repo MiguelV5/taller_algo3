@@ -487,30 +487,11 @@ divideAFraccion: aDividend
 
 	^ aDividend numerator / (aDividend 	denominator  * self).! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 15:39:04'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 20:35:14'!
 divideAnEntero: aDividend
 	
 	self subclassResponsibility.
 	
-	"| greatestCommonDivisor newNumerator newDenominator |
-	
-	self ifDivisorIsZeroOrNegative: aDividend .
-	
-	self isZero ifTrue: [ self class error: self class canNotDivideByZeroErrorDescription ].
-	self isNegative ifTrue:[ ^aDividend negated / self negated].
-	
-	aDividend ifDividendIsZero.
-	aDividend isZero ifTrue: [ ^aDividend ].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	newNumerator := aDividend // greatestCommonDivisor.
-	newDenominator := self // greatestCommonDivisor.
-	
-	newDenominator ifDenominatorIsOne.
-	
-	newDenominator isOne ifTrue: [ ^newNumerator ].
-
-	^Fraccion with: newNumerator over: newDenominator ."
 	! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'HernanWilkinson 5/7/2016 21:00'!
@@ -528,7 +509,7 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'MV 10/23/2021 18:13:15'!
+!Entero class methodsFor: 'instance creation' stamp: 'MV 10/24/2021 20:49:41'!
 with: aValue 
 	
 	| correspondingSubclass |
@@ -536,7 +517,7 @@ with: aValue
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
-	correspondingSubclass := Entero subclasses detect: [:subclass | subclass verifyTheContainedValue: aValue ].
+	correspondingSubclass := Entero subclasses detect: [:subclass | subclass canHandle: aValue ].
 	
 	^correspondingSubclass new initalizeWith: aValue.
 	! !
@@ -549,25 +530,16 @@ Entero subclass: #Cero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 15:20:52'!
-divideAnEntero: aDividend
-
-	self class error: self class canNotDivideByZeroErrorDescription ! !
-
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 16:43:42'!
+!Cero methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 16:43:42'!
 fibonacci
 
 	^ Entero with: 1.! !
 
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 14:05:43'!
-ifDividendIsZero
 
-	^self! !
+!Cero methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 19:40:58'!
+divideAnEntero: aDividend
 
-!Cero methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 13:58:56'!
-ifDivisorIsZeroOrNegative: aDivisor 
-
-	self class error: self class canNotDivideByZeroErrorDescription ! !
+	self error: self class canNotDivideByZeroErrorDescription ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -575,8 +547,8 @@ ifDivisorIsZeroOrNegative: aDivisor
 Cero class
 	instanceVariableNames: ''!
 
-!Cero class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!Cero class methodsFor: 'handler' stamp: 'MV 10/24/2021 20:49:29'!
+canHandle: aValue
 	
 	^ aValue = 0
 	! !
@@ -589,7 +561,7 @@ Entero subclass: #EnteroMayorAUno
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!EnteroMayorAUno methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 15:35:36'!
+!EnteroMayorAUno methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 19:57:49'!
 divideAnEntero: aDividend
 
 	| newDenominator newNumerator greatestCommonDivisor |
@@ -598,9 +570,12 @@ divideAnEntero: aDividend
 	newNumerator := aDividend // greatestCommonDivisor.
 	newDenominator := self // greatestCommonDivisor.
 	
+	newDenominator isOne ifTrue: [ ^newNumerator ].
+	
 	^Fraccion with: newNumerator over: newDenominator ! !
 
-!EnteroMayorAUno methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 16:56:21'!
+
+!EnteroMayorAUno methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 16:56:21'!
 fibonacci
 	
 	| one two |
@@ -616,8 +591,8 @@ fibonacci
 EnteroMayorAUno class
 	instanceVariableNames: ''!
 
-!EnteroMayorAUno class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!EnteroMayorAUno class methodsFor: 'handler' stamp: 'MV 10/24/2021 20:49:29'!
+canHandle: aValue
 
 	^ aValue > 1! !
 
@@ -629,20 +604,16 @@ Entero subclass: #EnteroNegativo
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 15:18:03'!
-divideAnEntero: aDividend
-
-	^aDividend negated / self negated! !
-
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 15:34:35'!
+!EnteroNegativo methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 15:34:35'!
 fibonacci
 
 	self error: Entero negativeFibonacciErrorDescription! !
 
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 13:59:06'!
-ifDivisorIsZeroOrNegative: aDivisor
 
-	^ aDivisor negated / self negated! !
+!EnteroNegativo methodsFor: 'arithmetic operations - private' stamp: 'MV 10/24/2021 15:18:03'!
+divideAnEntero: aDividend
+
+	^aDividend negated / self negated! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -650,8 +621,8 @@ ifDivisorIsZeroOrNegative: aDivisor
 EnteroNegativo class
 	instanceVariableNames: ''!
 
-!EnteroNegativo class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!EnteroNegativo class methodsFor: 'handler' stamp: 'MV 10/24/2021 20:49:29'!
+canHandle: aValue
 	
 	^ aValue < 0! !
 
@@ -663,26 +634,10 @@ Entero subclass: #Uno
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Uno methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 15:44:08'!
-divideAnEntero: aDividend
-
-	| greatestCommonDivisor newNumerator newDenominator |
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	newNumerator := aDividend // greatestCommonDivisor.
-	newDenominator := self // greatestCommonDivisor.
-	
-	newDenominator isOne ifTrue: [ ^newNumerator ].! !
-
-!Uno methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 15:34:44'!
+!Uno methodsFor: 'arithmetic operations' stamp: 'MV 10/23/2021 15:34:44'!
 fibonacci
 
 	^ Entero with: 1.! !
-
-!Uno methodsFor: 'as yet unclassified' stamp: 'MV 10/24/2021 14:08:16'!
-ifDenominatorIsOne
-
-	^self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -690,8 +645,8 @@ ifDenominatorIsOne
 Uno class
 	instanceVariableNames: ''!
 
-!Uno class methodsFor: 'as yet unclassified' stamp: 'MV 10/23/2021 18:11:24'!
-verifyTheContainedValue: aValue
+!Uno class methodsFor: 'handler' stamp: 'MV 10/24/2021 20:49:29'!
+canHandle: aValue
 	
 	^ aValue = 1! !
 
@@ -844,10 +799,10 @@ divideAnEntero: aDividend
 Fraccion class
 	instanceVariableNames: ''!
 
-!Fraccion class methodsFor: 'intance creation' stamp: 'MV 10/23/2021 19:55:16'!
+!Fraccion class methodsFor: 'intance creation' stamp: 'MV 10/24/2021 20:55:18'!
 with: aDividend over: aDivisor
 
-	| greatestCommonDivisor numerator denominator |
 
 	^self new initializeWith: aDividend over: aDivisor.
+	
 	! !
