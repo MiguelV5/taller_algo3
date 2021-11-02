@@ -139,10 +139,47 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'stackWithNoElements stackWithElements prefixNamedComp sentenceFinderOfEmptyStack sentenceFinderOfNotEmptyStack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefixTest methodsFor: 'setUp' stamp: 'MV 11/2/2021 02:30:32'!
+setUp
+
+	stackWithNoElements := OOStack new.
+	
+	stackWithElements := OOStack new.
+	stackWithElements push: 'Compañia'.
+	stackWithElements push: 'computadora'.
+	stackWithElements push: 'Computadora'.
+	stackWithElements push: 'jabon'.
+	stackWithElements push: 'Café'.
+	stackWithElements push: 'Compresion'.
+	stackWithElements push: 'COMPRESION'.
+	stackWithElements push: 'comprension'.
+	stackWithElements push: 'comida'.
+	stackWithElements push: 'Comadreja'.
+	stackWithElements push: 'correr'.
+	stackWithElements push: 'Correr'.
+	stackWithElements push: 'complacer'.
+	stackWithElements push: 'hola'.
+	stackWithElements push: 'Competencia'.
+	
+	prefixNamedComp := 'Comp'.
+	sentenceFinderOfEmptyStack := SentenceFinderByPrefix with: stackWithNoElements.
+	sentenceFinderOfNotEmptyStack := SentenceFinderByPrefix with: stackWithElements.
+	
+	! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/2/2021 02:35:09'!
+test01CannotUseSentenceFinderByPrefixIfStackIsEmpty
+
+	
+	self should: [sentenceFinderOfEmptyStack find: prefixNamedComp] raise: Error withExceptionDo: [:anError | 
+		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
+	]. ! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -152,42 +189,31 @@ Object subclass: #OOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'initialization' stamp: 'MV 11/1/2021 20:57:54'!
+!OOStack methodsFor: 'initialization' stamp: 'MV 11/2/2021 00:50:00'!
 initialize
 
 	stackCollection  := OrderedCollection new.
-	"state  := EmptyStateOfStack withAssociatedStack: self. No se está usando el associatedStack en el estado porque falla por ahora
-"
+! !
+
+
+!OOStack methodsFor: 'operations' stamp: 'MV 10/30/2021 21:18:17'!
+isEmpty
+
+	^ stackCollection isEmpty. 
 	! !
 
-
-!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 20:51:22'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/2/2021 01:21:30'!
 pop
-	| poppedElement  estadoActual |
-	
-	estadoActual := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
-	
-	poppedElement := (estadoActual withAssociatedStack: self) handleIfStackIsValidToPop: self.
-	
-	
-	"
-	poppedElement := state handleIfStackIsValidToPop: self.
-	(self isEmpty) ifTrue: [self updateStateToEmpty].
-	"
-	^ poppedElement .
-	
-	
-	
-	
-	
-	
 
-	! !
+	^ self processElementWithStackOperation: #handleIfStackIsValidToPop:
+	
+	
+	
+! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 20:47:24'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/2/2021 00:55:25'!
 push: elementToPush
 	
-	"self updateStateToNotEmpty."
 	stackCollection addFirst: elementToPush .
 
 	! !
@@ -197,19 +223,32 @@ size
 
 	^ stackCollection size .! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 21:14:37'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/2/2021 01:21:30'!
 top
 
-	| toppedElement  estadoActual |
-	
-	estadoActual := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
-	
-	toppedElement := (estadoActual withAssociatedStack: self) handleIfStackIsValidToGetTop: self.
-
-	^ toppedElement .
+	^ self processElementWithStackOperation: #handleIfStackIsValidToGetTop:
 	
 	! !
 
+
+!OOStack methodsFor: 'operations - private' stamp: 'MV 11/2/2021 01:21:30'!
+processElementWithStackOperation: aSelector 
+
+	| processedElement  actualState |
+	
+	actualState := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
+	
+	processedElement := (aSelector asMessageWith: self) sendTo: actualState new.
+	
+	^ processedElement .
+	
+	! !
+
+!OOStack methodsFor: 'operations - private' stamp: 'MV 11/2/2021 01:24:08'!
+raiseErrorDueToEmptyStack
+
+	self error: OOStack stackEmptyErrorDescription 
+	! !
 
 !OOStack methodsFor: 'operations - private' stamp: 'MV 10/30/2021 21:12:35'!
 safePop
@@ -220,31 +259,6 @@ safePop
 safeTop
 
 	^ stackCollection at: 1! !
-
-!OOStack methodsFor: 'operations - private' stamp: 'MV 10/30/2021 21:15:49'!
-sendErrorDueToEmptyStack
-
-	self error: OOStack stackEmptyErrorDescription 
-	
-	"SE TENIAN DOS METODOS IDENTICOS: 'removeElementAtTheTopIfStackIsEmpty'  y  'topIfStackIsEmpty'. 
-	Puse uno solo que sea tipo sendErrorDueToEmptyStack, revisar nombre juntos despues"! !
-
-
-!OOStack methodsFor: 'state management' stamp: 'MV 10/30/2021 21:18:17'!
-isEmpty
-
-	^ stackCollection isEmpty. 
-	! !
-
-!OOStack methodsFor: 'state management' stamp: 'MV 10/30/2021 21:18:13'!
-updateStateToEmpty
-	
-	state := EmptyStateOfStack new.! !
-
-!OOStack methodsFor: 'state management' stamp: 'MV 10/30/2021 21:18:07'!
-updateStateToNotEmpty
-
-	state := NotEmptyStateOfStack new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -260,31 +274,52 @@ stackEmptyErrorDescription
 
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-
-!classDefinition: #StateOfStack category: 'Stack-Exercise'!
-Object subclass: #StateOfStack
 	instanceVariableNames: 'associatedStack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!StateOfStack methodsFor: 'initialization' stamp: 'MV 10/30/2021 16:12:31'!
-initializeWith: aStack
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'MV 11/2/2021 02:32:22'!
+find: aPrefix
 
-	associatedStack := aStack.! !
+	associatedStack isEmpty ifTrue: [self error: self class cannotFindSentecesWithAPrefixInAnEmptyStack ].! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'MV 11/2/2021 02:07:15'!
+initializeWith: aStackToAssociate
+
+	associatedStack := aStackToAssociate.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'errors' stamp: 'MV 11/2/2021 02:25:32'!
+cannotFindSentecesWithAPrefixInAnEmptyStack
+
+	^ 'No se pueden entontrar frases en un stack vacío'. ! !
 
 
-!StateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 20:56:08'!
+!SentenceFinderByPrefix class methodsFor: 'instance creation' stamp: 'MV 11/2/2021 02:05:12'!
+with: aStackToAssociate
+
+	^ SentenceFinderByPrefix new initializeWith: aStackToAssociate.! !
+
+
+!classDefinition: #StateOfStack category: 'Stack-Exercise'!
+Object subclass: #StateOfStack
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+
+!StateOfStack methodsFor: 'operation handling' stamp: 'MV 11/2/2021 00:53:26'!
 handleIfStackIsValidToGetTop: aStack
 
 	self subclassResponsibility.
-	
-	"sugerencia previa: 'getTopOfStack. Pareciera más como un mensaje de OOStack, hace ruido '"! !
+	! !
 
 !StateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 20:49:20'!
 handleIfStackIsValidToPop: aStack
@@ -302,12 +337,6 @@ canHandle: aStack
 
 	self subclassResponsibility .! !
 
-!StateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:11:18'!
-withAssociatedStack: aStack
-	
-	self subclassResponsibility.
-! !
-
 
 !classDefinition: #EmptyStateOfStack category: 'Stack-Exercise'!
 StateOfStack subclass: #EmptyStateOfStack
@@ -316,34 +345,16 @@ StateOfStack subclass: #EmptyStateOfStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!EmptyStateOfStack methodsFor: 'operation handling (falla)' stamp: 'MV 10/30/2021 21:19:32'!
-getTopOfStack
-
-	associatedStack sendErrorDueToEmptyStack.
-
-	"NO FUNCIONA CON ESTE PLANTEO"! !
-
-!EmptyStateOfStack methodsFor: 'operation handling (falla)' stamp: 'MV 10/30/2021 21:19:48'!
-handleIfStackIsValidToPop
-
-	associatedStack sendErrorDueToEmptyStack.
-	
-	"NO FUNCIONA CON ESTE PLANTEO"
-	
-	
-! !
-
-
-!EmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 21:15:49'!
+!EmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/2/2021 01:24:08'!
 handleIfStackIsValidToGetTop: aStack
 
-	aStack sendErrorDueToEmptyStack.
+	aStack raiseErrorDueToEmptyStack.
 ! !
 
-!EmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 21:16:14'!
+!EmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/2/2021 01:24:08'!
 handleIfStackIsValidToPop: aStack
 
-	aStack sendErrorDueToEmptyStack.
+	aStack raiseErrorDueToEmptyStack.
 
 	
 	
@@ -361,11 +372,6 @@ canHandle: aStack
 
 	^ aStack isEmpty = true .! !
 
-!EmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:47:36'!
-withAssociatedStack: aStack
-	
-	^ EmptyStateOfStack new initializeWith: aStack. ! !
-
 
 !classDefinition: #NotEmptyStateOfStack category: 'Stack-Exercise'!
 StateOfStack subclass: #NotEmptyStateOfStack
@@ -374,34 +380,18 @@ StateOfStack subclass: #NotEmptyStateOfStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!NotEmptyStateOfStack methodsFor: 'operation handling (falla)' stamp: 'MV 10/30/2021 21:11:12'!
-getTopOfStack
-
-	^associatedStack safeTop . 
-	
-	"NO FUNCIONA CON ESTE PLANTEO"! !
-
-!NotEmptyStateOfStack methodsFor: 'operation handling (falla)' stamp: 'MV 10/30/2021 21:12:35'!
-handleIfStackIsValidToPop
-
-	^associatedStack safePop .
-	
-	"NO FUNCIONA CON ESTE PLANTEO"! !
-
-
-!NotEmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 21:11:12'!
+!NotEmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/2/2021 00:50:45'!
 handleIfStackIsValidToGetTop: aStack
 
 	^ aStack safeTop .  
 	
-	"cambio de nombre (era 'topIfStackIsNotEmpty') a: safeTop, como un top pero ya seguro porque si entró acá es porque es un NotEmptyStack"! !
+	! !
 
-!NotEmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 21:20:03'!
+!NotEmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/2/2021 00:50:37'!
 handleIfStackIsValidToPop: aStack
 
 	^ aStack safePop . 
-	
-	"MIsma idea del handler para top. Renombre a: safePop; o ItsSafeToPop  (era 'removeElementAtTheTopIfStackIsNotEmpty')"! !
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -413,8 +403,3 @@ NotEmptyStateOfStack class
 canHandle: aStack
 
 	^ aStack  isEmpty = false.! !
-
-!NotEmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:48:01'!
-withAssociatedStack: aStack
-	
-	^ NotEmptyStateOfStack new initializeWith: aStack. ! !
