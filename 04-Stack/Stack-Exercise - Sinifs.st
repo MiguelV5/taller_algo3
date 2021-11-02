@@ -147,27 +147,33 @@ TestCase subclass: #SentenceFinderByPrefixTest
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: 'stackCollection state'
+	instanceVariableNames: 'stackCollection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'initialization' stamp: 'MV 10/30/2021 21:18:55'!
+!OOStack methodsFor: 'initialization' stamp: 'MV 11/1/2021 20:57:54'!
 initialize
 
 	stackCollection  := OrderedCollection new.
-	state  := EmptyStateOfStack withAssociatedStack: self. "No se está usando el associatedStack en el estado porque falla por ahora"
-
+	"state  := EmptyStateOfStack withAssociatedStack: self. No se está usando el associatedStack en el estado porque falla por ahora
+"
 	! !
 
 
-!OOStack methodsFor: 'operations' stamp: 'MV 10/30/2021 16:32:16'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 20:51:22'!
 pop
-	| poppedElement |
+	| poppedElement  estadoActual |
 	
+	estadoActual := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
+	
+	poppedElement := (estadoActual withAssociatedStack: self) handleIfStackIsValidToPop: self.
+	
+	
+	"
 	poppedElement := state handleIfStackIsValidToPop: self.
 	(self isEmpty) ifTrue: [self updateStateToEmpty].
-	
+	"
 	^ poppedElement .
 	
 	
@@ -178,10 +184,10 @@ pop
 
 	! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 10/30/2021 20:37:28'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 20:47:24'!
 push: elementToPush
 	
-	self updateStateToNotEmpty.
+	"self updateStateToNotEmpty."
 	stackCollection addFirst: elementToPush .
 
 	! !
@@ -191,10 +197,16 @@ size
 
 	^ stackCollection size .! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 10/30/2021 20:56:08'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/1/2021 21:14:37'!
 top
 
-	^ state handleIfStackIsValidToGetTop: self.
+	| toppedElement  estadoActual |
+	
+	estadoActual := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
+	
+	toppedElement := (estadoActual withAssociatedStack: self) handleIfStackIsValidToGetTop: self.
+
+	^ toppedElement .
 	
 	! !
 
@@ -285,6 +297,11 @@ handleIfStackIsValidToPop: aStack
 StateOfStack class
 	instanceVariableNames: ''!
 
+!StateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 11/1/2021 20:54:46'!
+canHandle: aStack
+
+	self subclassResponsibility .! !
+
 !StateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:11:18'!
 withAssociatedStack: aStack
 	
@@ -339,6 +356,11 @@ handleIfStackIsValidToPop: aStack
 EmptyStateOfStack class
 	instanceVariableNames: ''!
 
+!EmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 11/1/2021 21:08:59'!
+canHandle: aStack
+
+	^ aStack isEmpty = true .! !
+
 !EmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:47:36'!
 withAssociatedStack: aStack
 	
@@ -386,6 +408,11 @@ handleIfStackIsValidToPop: aStack
 !classDefinition: 'NotEmptyStateOfStack class' category: 'Stack-Exercise'!
 NotEmptyStateOfStack class
 	instanceVariableNames: ''!
+
+!NotEmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 11/1/2021 21:09:06'!
+canHandle: aStack
+
+	^ aStack  isEmpty = false.! !
 
 !NotEmptyStateOfStack class methodsFor: 'as yet unclassified' stamp: 'MV 10/30/2021 16:48:01'!
 withAssociatedStack: aStack
