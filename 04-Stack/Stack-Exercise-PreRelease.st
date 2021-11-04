@@ -139,148 +139,147 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: 'stackWithNoElements stackWithMoreThanOneElement stackWithOneElement sentenceFinderOfOneElementStack sentenceFinderOfEmptyStack sentenceFinderOfNotEmptyStack'
+	instanceVariableNames: 'stackWithoutElements stackWithOneElement stackWithALotOfElements sentenceFinderOfStackWithoutElements sentenceFinderOfStackWithOneElement sentenceFinderOfStackWithALotOfElements'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefixTest methodsFor: 'setUp' stamp: 'pb 11/2/2021 22:26:59'!
+!SentenceFinderByPrefixTest methodsFor: 'setUp' stamp: 'MV 11/4/2021 00:12:40'!
 setUp
 
-	stackWithNoElements := OOStack new.
+	stackWithoutElements := OOStack new.
 	stackWithOneElement:= OOStack new.
-	stackWithMoreThanOneElement := OOStack new.
+	stackWithALotOfElements := OOStack new.
 	
 	stackWithOneElement push:'ropa nueva'.
 	
-	stackWithMoreThanOneElement push: 'Compañia de autos'.
-	stackWithMoreThanOneElement push: 'computadora portatil'.
-	stackWithMoreThanOneElement push: 'Computadora de escritorio'.
-	stackWithMoreThanOneElement push: 'jabon de coco'.
-	stackWithMoreThanOneElement push: 'Café descafeinado'.
-	stackWithMoreThanOneElement push: 'Compresion'.
-	stackWithMoreThanOneElement push: 'COMPRESION'.
-	stackWithMoreThanOneElement push: 'comprension lectora'.
-	stackWithMoreThanOneElement push: 'comida china'.
-	stackWithMoreThanOneElement push: 'Comadreja'.
-	stackWithMoreThanOneElement push: 'correr una maraton'.
-	stackWithMoreThanOneElement push: 'Correr es un muy buen deporte'.
-	stackWithMoreThanOneElement push: 'complacer'.
-	stackWithMoreThanOneElement push: 'hola como estas?'.
-	stackWithMoreThanOneElement push: 'Competencia de natacion'.
+	stackWithALotOfElements push: 'Compañia de autos'.
+	stackWithALotOfElements push: 'computadora portatil'.
+	stackWithALotOfElements push: 'Computadora de escritorio'.
+	stackWithALotOfElements push: 'jabon de coco'.
+	stackWithALotOfElements push: 'Café descafeinado'.
+	stackWithALotOfElements push: 'Compresion'.
+	stackWithALotOfElements push: 'COMPRESION'.
+	stackWithALotOfElements push: 'comprension lectora'.
+	stackWithALotOfElements push: 'comida china'.
+	stackWithALotOfElements push: 'Comadreja'.
+	stackWithALotOfElements push: 'correr una maraton'.
+	stackWithALotOfElements push: 'Correr es un muy buen deporte'.
+	stackWithALotOfElements push: 'complacer'.
+	stackWithALotOfElements push: 'hola como estas?'.
+	stackWithALotOfElements push: 'Competencia de natacion'.
 	
-	sentenceFinderOfOneElementStack:= SentenceFinderByPrefix with: stackWithOneElement .
-	sentenceFinderOfEmptyStack := SentenceFinderByPrefix with: stackWithNoElements.
-	sentenceFinderOfNotEmptyStack := SentenceFinderByPrefix with: stackWithMoreThanOneElement.
+	sentenceFinderOfStackWithOneElement:= SentenceFinderByPrefix with: stackWithOneElement .
+	sentenceFinderOfStackWithoutElements := SentenceFinderByPrefix with: stackWithoutElements.
+	sentenceFinderOfStackWithALotOfElements := SentenceFinderByPrefix with: stackWithALotOfElements.
 	
 	! !
 
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/2/2021 22:29:33'!
+!SentenceFinderByPrefixTest methodsFor: 'testHelper' stamp: 'MV 11/4/2021 04:18:25'!
+makeCopyOfStackWithALotOfElements
+	
+	^ OOStack new  push: 'Compañia de autos' ; push: 'computadora portatil' ;  push: 'Computadora de escritorio' ;  push: 'jabon de coco' ; 
+	push: 'Café descafeinado' ;  push: 'Compresion' ;  push: 'COMPRESION' ;   push: 'comprension lectora' ;  push: 'comida china' ;   push: 'Comadreja' ; 
+	push: 'correr una maraton' ;   push: 'Correr es un muy buen deporte' ; push: 'complacer' ; push: 'hola como estas?' ; push: 'Competencia de natacion'.! !
+
+!SentenceFinderByPrefixTest methodsFor: 'testHelper' stamp: 'MV 11/4/2021 04:20:23'!
+makeCopyOfStackWithOneElement
+
+	^ OOStack new push: 'ropa nueva'! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 00:13:31'!
 test01cannotUseSentenceFinderByPrefixIfStackIsEmpty
 	
-	|prefixToFind|
-	prefixToFind :='Comp'.
+	| prefixToFind |
 	
-	self should: [sentenceFinderOfEmptyStack find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
+	prefixToFind := 'Comp'.
+	
+	self should: [sentenceFinderOfStackWithoutElements find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
 		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
 	]. ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/3/2021 22:54:41'!
-test02couldFindAMatchingSentenceWithinAStackWithMoreThanOneElement
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:05:06'!
+test02couldFindAMatchingSentenceWithinAStackWithOneElement
 
-	| prefixToFind searchResultCollection expectedSentence|
+	| prefixToFind searchResultsCollection expectedSentencesCollection |
+	
+	prefixToFind := 'ropa '.
+	expectedSentencesCollection :=OrderedCollection with: 'ropa nueva'.
+	
+	searchResultsCollection := sentenceFinderOfStackWithOneElement find: prefixToFind.
+		
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:06:06'!
+test03couldFindAMatchingSentenceWithinAStackWithMoreThanOneElement
+
+	| prefixToFind searchResultsCollection expectedSentencesCollection |
 	
 	prefixToFind := 'jab'.
-	expectedSentence := 'jabon de coco'.
+	expectedSentencesCollection := OrderedCollection with: 'jabon de coco'.
 	
-	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
+	searchResultsCollection := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
 	
-	self assert: searchResultCollection size equals: 1.
-	self assert: (searchResultCollection find:expectedSentence ) > 0.
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
 	
 
 
 
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/3/2021 00:14:42'!
-test03couldFindAMatchingSentenceWithinAStackWithOneElement
-
-	| prefixToFind searchResultCollection expectedSentence|
-	
-	prefixToFind := 'ropa '.
-	expectedSentence := 'ropa nueva'.
-	
-	searchResultCollection := sentenceFinderOfOneElementStack find: prefixToFind.
-	
-	self assert:(searchResultCollection size )equals: 1.
-	self assert:(searchResultCollection find:expectedSentence )>0.
-	! !
-
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/2/2021 23:32:40'!
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:05:55'!
 test04couldFindMultipleMatchingSentencesWithinAStackWithMoreThanOneElement
 
-	| prefixToFind searchResultCollection expectedSentencesCollection|
+	| prefixToFind searchResultsCollection expectedSentencesCollection |
 	
 	prefixToFind := 'Comp'.
 	expectedSentencesCollection :=OrderedCollection  with: 'Competencia de natacion' with:'Compresion'
 	with: 'Computadora de escritorio' with: 'Compañia de autos' .
 	
-	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
+	searchResultsCollection := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
 	
-	self assert:(searchResultCollection size )equals: 4.
-	self assert:(searchResultCollection )equals: expectedSentencesCollection.
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
 	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/2/2021 23:28:32'!
-test05couldNotFindAnyMatchingSentencesWithinAStackWithMoreThanOneElement
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:17:04'!
+test05couldNotFindAnyMatchingSentencesWithinAStack
 
-	| prefixToFind searchResultCollection |
+	| prefixToFind searchResultsCollectionOfStackWithOneElement searchResultsCollectionOfStackWithALotOfElements |
 	
 	prefixToFind := 'aghjska'.
 	
-	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
+	searchResultsCollectionOfStackWithALotOfElements := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
+	searchResultsCollectionOfStackWithOneElement := sentenceFinderOfStackWithOneElement find: prefixToFind.
 	
-	self assert:(searchResultCollection size )equals:0.
-	
-	! !
-
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/2/2021 23:33:03'!
-test06couldNotFindAMatchingSentenceWithinAStackWithOneElement
-
-	| prefixToFind searchResultCollection |
-	
-	prefixToFind := 'aghjska'.
-	
-	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
-	
-	self assert:(searchResultCollection size )equals:0.
+	self assert: (( searchResultsCollectionOfStackWithOneElement size = 0 ) and: ( searchResultsCollectionOfStackWithALotOfElements size = 0 )).
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/2/2021 23:39:07'!
-test07couldNotFindAnyMatchingSentencesCaseSensitive
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:23:01'!
+test06couldNotFindAnyCaseSensitiveMatchingSentences
 	
-	| prefixToFind searchResultCollection expectedSentencesCollection|
+	| prefixToFind searchResultsCollection notExpectedSentencesCollection|
 	
 	prefixToFind := 'comp'.
-	expectedSentencesCollection :=OrderedCollection  with: 'Competencia de natacion' with:'Compresion'
+	notExpectedSentencesCollection :=OrderedCollection  with: 'Competencia de natacion' with:'Compresion'
 	with: 'Computadora de escritorio' with: 'Compañia de autos' .
 	
-	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
+	searchResultsCollection := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
 	
-	self deny: searchResultCollection = expectedSentencesCollection .
+	self deny: searchResultsCollection = notExpectedSentencesCollection .
  ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/3/2021 00:02:51'!
-test08StackRemainsInTheSameOrderAsItWasBeforeUsingFind
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 04:19:44'!
+test07stackWithOneElementRemainsInTheSameOrderAsItWasBeforeUsingFind
 
-	| prefixToFind  stackBeforeFinding|
+	| prefixToFind  stackBeforeFinding |
 	
 	prefixToFind := 'ropa '.
 
-	stackBeforeFinding := OOStack new push: 'ropa nueva'.
-	sentenceFinderOfOneElementStack find: prefixToFind.
+	stackBeforeFinding := self makeCopyOfStackWithOneElement .
+	sentenceFinderOfStackWithOneElement find: prefixToFind.
 	
 	self assert: stackWithOneElement top equals: stackBeforeFinding top.
 	self assert: stackWithOneElement size equals: stackBeforeFinding size.
@@ -290,22 +289,81 @@ test08StackRemainsInTheSameOrderAsItWasBeforeUsingFind
 
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/3/2021 00:15:05'!
-test09findWorksProperlyIfTheStackIsModified
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 04:15:52'!
+test08stackWithALotOfElementsRemainsInTheSameOrderAsItWasBeforeUsingFind
 
-	| prefixToFind   expectedSentencesCollection|
+	| prefixToFind  stackBeforeFinding currentElementComparisonIsCorrect |
+	
+	prefixToFind := 'comp'.
+
+	stackBeforeFinding := self makeCopyOfStackWithALotOfElements.
+	
+	sentenceFinderOfStackWithALotOfElements find: prefixToFind .
+	
+	self assert: stackWithALotOfElements size equals: stackBeforeFinding size.
+		
+	sentenceFinderOfStackWithALotOfElements inTheWholeStack: stackWithALotOfElements repeatOperation: [ 
+			currentElementComparisonIsCorrect := stackBeforeFinding pop = stackWithALotOfElements pop.
+			self assert: currentElementComparisonIsCorrect.
+	].
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 04:21:00'!
+test09findWorksProperlyIfTheStackWithOneElementIsModified
+
+	| prefixToFind  expectedSentencesCollection searchResultsCollection |
 	
 	prefixToFind := 'ropa '.
-
 	stackWithOneElement push: 'hola'.
-	expectedSentencesCollection := sentenceFinderOfOneElementStack find: prefixToFind.
+	expectedSentencesCollection := OrderedCollection with: 'ropa nueva'.
 	
-	self assert: expectedSentencesCollection size equals:1.
-	self assert: (expectedSentencesCollection find:'ropa nueva')>0 .
+	searchResultsCollection := sentenceFinderOfStackWithOneElement find: prefixToFind.
 	
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
+	
+	2 timesRepeat: [
+		stackWithOneElement pop.
+	].
+	
+	self should: [sentenceFinderOfStackWithOneElement find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
+		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
+	]. 
 	
 	
 ! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 03:47:31'!
+test10findWorksProperlyIfTheStackWithALotOfElementsIsModified
+
+	| prefixToFind  expectedSentencesCollection searchResultsCollection |
+	
+	prefixToFind := 'Ca'.
+	stackWithALotOfElements push: 'cualquier cosa'.
+	expectedSentencesCollection := OrderedCollection with: 'Café descafeinado'.
+	
+	searchResultsCollection := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
+	
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
+	
+	sentenceFinderOfStackWithALotOfElements inTheWholeStack: stackWithALotOfElements repeatOperation: [ stackWithALotOfElements pop ].
+
+	self should: [sentenceFinderOfStackWithALotOfElements find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
+		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
+	]. ! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 02:18:57'!
+test11findWorksProperlyWithPrefixesAndDoesNotWorkWithSuffixes
+
+	| prefixToFind  expectedSentencesCollection searchResultsCollection |
+	
+	prefixToFind := 'ja'.
+	
+	expectedSentencesCollection := OrderedCollection with: 'jabon de coco'.   "En el stackWithALotOfElements se tiene 'jabon de coco' y 'Comadreja', que tiene a ja como sufijo"
+	
+	searchResultsCollection := sentenceFinderOfStackWithALotOfElements find: prefixToFind.
+	
+	self assert: searchResultsCollection equals: expectedSentencesCollection.
+	! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -405,7 +463,7 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'MV 11/3/2021 23:04:27'!
+!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'MV 11/4/2021 03:22:35'!
 find: aPrefix	
  
 	associatedStack isEmpty ifTrue: [self error: self class cannotFindSentecesWithAPrefixInAnEmptyStack ] .
@@ -419,32 +477,29 @@ initializeWith: aStackToAssociate
 	associatedStack := aStackToAssociate.! !
 
 
-!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:06:45'!
-compareAssociatedStackElementsWithPrefix: aPrefix andSaveInAuxiliarStack: auxiliarStack savingMatchesIn: searchResults
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 04:12:00'!
+compareStackSentenceWithPrefix: aPrefix andSaveInAuxiliarStack: anAuxiliarStack savingMatchesIn: searchResultsCollection
 
-	| actualElementToCompare wasFound |
+	| currentSentenceToCompare aMatchWasMadeWithTheCurrentSentence |
 
-	actualElementToCompare := associatedStack pop.
-	auxiliarStack push: actualElementToCompare .
+	currentSentenceToCompare := self transferSentenceFrom: associatedStack to: anAuxiliarStack .
 		
-	wasFound := actualElementToCompare includesSubstring: aPrefix caseSensitive: true.
+	aMatchWasMadeWithTheCurrentSentence := currentSentenceToCompare beginsWith: aPrefix.
 		
-	wasFound ifTrue: [ searchResults add: actualElementToCompare ]! !
+	aMatchWasMadeWithTheCurrentSentence ifTrue: [ searchResultsCollection add: currentSentenceToCompare ].
+	! !
 
-!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 23:03:04'!
-loopOnStack: aStack whileDoing: aBlock
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 03:47:44'!
+inTheWholeStack: aStack repeatOperation: aBlock
 
 	aStack size timesRepeat: [ aBlock value ].! !
 
-!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:14:35'!
-restoreOriginalAssociatedStackElementFrom: anotherStack
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 04:09:42'!
+restoreOriginalStackSentenceFrom: anotherStack
 	
-	| actualElementToTransfer |
+	self transferSentenceFrom: anotherStack to: associatedStack.! !
 
-	actualElementToTransfer := anotherStack pop.
-	associatedStack push: actualElementToTransfer .! !
-
-!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:14:35'!
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 04:12:00'!
 searchForSentenceMatchingsWith: aPrefix
 
 	| auxiliarStack searchResults |
@@ -452,11 +507,23 @@ searchForSentenceMatchingsWith: aPrefix
 	auxiliarStack := OOStack  new.
 	searchResults := OrderedCollection new.
 	
-	self loopOnStack: associatedStack whileDoing: [ self compareAssociatedStackElementsWithPrefix: aPrefix andSaveInAuxiliarStack: auxiliarStack savingMatchesIn: searchResults ].
+	self inTheWholeStack: associatedStack repeatOperation: [ self compareStackSentenceWithPrefix: aPrefix andSaveInAuxiliarStack: auxiliarStack savingMatchesIn: searchResults ].
 	
-	self loopOnStack: auxiliarStack whileDoing: [ self restoreOriginalAssociatedStackElementFrom: auxiliarStack ]. 
+	self inTheWholeStack: auxiliarStack repeatOperation: [ self restoreOriginalStackSentenceFrom: auxiliarStack ]. 
 
 	^searchResults .! !
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 04:09:42'!
+transferSentenceFrom: sourceStack to: destinationStack
+
+	| currentSentenceToTransfer |
+	
+	currentSentenceToTransfer := sourceStack pop.
+	destinationStack push: currentSentenceToTransfer .
+	
+	^ currentSentenceToTransfer .
+	
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
