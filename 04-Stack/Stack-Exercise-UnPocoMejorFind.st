@@ -139,7 +139,7 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: 'stackWithNoElements stackWithMoreThanOneElement stackWithOneElement sentenceFinderOfEmptyStack sentenceFinderOfNotEmptyStack sentenceFinderOfOneElementStack'
+	instanceVariableNames: 'stackWithNoElements stackWithMoreThanOneElement stackWithOneElement sentenceFinderOfOneElementStack sentenceFinderOfEmptyStack sentenceFinderOfNotEmptyStack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
@@ -186,7 +186,7 @@ test01cannotUseSentenceFinderByPrefixIfStackIsEmpty
 		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
 	]. ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'pb 11/3/2021 00:14:23'!
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/3/2021 22:54:41'!
 test02couldFindAMatchingSentenceWithinAStackWithMoreThanOneElement
 
 	| prefixToFind searchResultCollection expectedSentence|
@@ -196,8 +196,8 @@ test02couldFindAMatchingSentenceWithinAStackWithMoreThanOneElement
 	
 	searchResultCollection := sentenceFinderOfNotEmptyStack find: prefixToFind.
 	
-	self assert:(searchResultCollection size )equals: 1.
-	self assert:(searchResultCollection find:expectedSentence )>0.
+	self assert: searchResultCollection size equals: 1.
+	self assert: (searchResultCollection find:expectedSentence ) > 0.
 	
 
 
@@ -405,36 +405,58 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'pb 11/2/2021 23:55:52'!
-find: aPrefix
-	
-	|auxiliarStack actualElementToCompare wasFound searchResult|
+!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'MV 11/3/2021 23:04:27'!
+find: aPrefix	
  
 	associatedStack isEmpty ifTrue: [self error: self class cannotFindSentecesWithAPrefixInAnEmptyStack ] .
 	
-	auxiliarStack := OOStack  new.
-	searchResult := OrderedCollection new.
-	
-	associatedStack size timesRepeat:[ 
-		
-		actualElementToCompare := associatedStack pop.
-		auxiliarStack push: actualElementToCompare .
-		
-		wasFound := actualElementToCompare includesSubstring: aPrefix caseSensitive: true.
-		
-		wasFound ifTrue: [  searchResult add: actualElementToCompare ]
-		].
-	auxiliarStack size timesRepeat: [
-		actualElementToCompare := auxiliarStack pop.
-		associatedStack push: actualElementToCompare .
-		
-		].
-	^searchResult .! !
+	^ self searchForSentenceMatchingsWith: aPrefix.! !
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'MV 11/2/2021 02:07:15'!
+
+!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'MV 11/2/2021 02:07:15'!
 initializeWith: aStackToAssociate
 
 	associatedStack := aStackToAssociate.! !
+
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:06:45'!
+compareAssociatedStackElementsWithPrefix: aPrefix andSaveInAuxiliarStack: auxiliarStack savingMatchesIn: searchResults
+
+	| actualElementToCompare wasFound |
+
+	actualElementToCompare := associatedStack pop.
+	auxiliarStack push: actualElementToCompare .
+		
+	wasFound := actualElementToCompare includesSubstring: aPrefix caseSensitive: true.
+		
+	wasFound ifTrue: [ searchResults add: actualElementToCompare ]! !
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 23:03:04'!
+loopOnStack: aStack whileDoing: aBlock
+
+	aStack size timesRepeat: [ aBlock value ].! !
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:14:35'!
+restoreOriginalAssociatedStackElementFrom: anotherStack
+	
+	| actualElementToTransfer |
+
+	actualElementToTransfer := anotherStack pop.
+	associatedStack push: actualElementToTransfer .! !
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/3/2021 22:14:35'!
+searchForSentenceMatchingsWith: aPrefix
+
+	| auxiliarStack searchResults |
+	
+	auxiliarStack := OOStack  new.
+	searchResults := OrderedCollection new.
+	
+	self loopOnStack: associatedStack whileDoing: [ self compareAssociatedStackElementsWithPrefix: aPrefix andSaveInAuxiliarStack: auxiliarStack savingMatchesIn: searchResults ].
+	
+	self loopOnStack: auxiliarStack whileDoing: [ self restoreOriginalAssociatedStackElementFrom: auxiliarStack ]. 
+
+	^searchResults .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
