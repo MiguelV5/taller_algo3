@@ -176,6 +176,13 @@ setUp
 	! !
 
 
+!SentenceFinderByPrefixTest methodsFor: 'testHelper' stamp: 'MV 11/4/2021 14:24:22'!
+clearStack: aStack
+
+	aStack size timesRepeat: [
+		aStack pop.
+	].! !
+
 !SentenceFinderByPrefixTest methodsFor: 'testHelper' stamp: 'MV 11/4/2021 04:18:25'!
 makeCopyOfStackWithALotOfElements
 	
@@ -308,7 +315,7 @@ test08stackWithALotOfElementsRemainsInTheSameOrderAsItWasBeforeUsingFind
 	].
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 04:21:00'!
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 14:25:01'!
 test09findWorksProperlyIfTheStackWithOneElementIsModified
 
 	| prefixToFind  expectedSentencesCollection searchResultsCollection |
@@ -321,9 +328,7 @@ test09findWorksProperlyIfTheStackWithOneElementIsModified
 	
 	self assert: searchResultsCollection equals: expectedSentencesCollection.
 	
-	2 timesRepeat: [
-		stackWithOneElement pop.
-	].
+	self clearStack: stackWithOneElement.
 	
 	self should: [sentenceFinderOfStackWithOneElement find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
 		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
@@ -332,7 +337,7 @@ test09findWorksProperlyIfTheStackWithOneElementIsModified
 	
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 03:47:31'!
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'MV 11/4/2021 14:25:18'!
 test10findWorksProperlyIfTheStackWithALotOfElementsIsModified
 
 	| prefixToFind  expectedSentencesCollection searchResultsCollection |
@@ -345,7 +350,7 @@ test10findWorksProperlyIfTheStackWithALotOfElementsIsModified
 	
 	self assert: searchResultsCollection equals: expectedSentencesCollection.
 	
-	sentenceFinderOfStackWithALotOfElements inTheWholeStack: stackWithALotOfElements repeatOperation: [ stackWithALotOfElements pop ].
+	self clearStack: stackWithALotOfElements .
 
 	self should: [sentenceFinderOfStackWithALotOfElements find: prefixToFind ] raise: Error withExceptionDo: [:anError | 
 		self assert: anError messageText equals: SentenceFinderByPrefix cannotFindSentecesWithAPrefixInAnEmptyStack
@@ -386,10 +391,10 @@ isEmpty
 	^ stackCollection isEmpty. 
 	! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 11/2/2021 01:21:30'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/4/2021 14:17:26'!
 pop
 
-	^ self processElementWithStackOperation: #handleIfStackIsValidToPop:
+	^ self processElementAtTheTopAccordingToStateWithStackOperation: #handleIfStackIsValidToPop:
 	
 	
 	
@@ -407,31 +412,25 @@ size
 
 	^ stackCollection size .! !
 
-!OOStack methodsFor: 'operations' stamp: 'MV 11/2/2021 01:21:30'!
+!OOStack methodsFor: 'operations' stamp: 'MV 11/4/2021 14:17:26'!
 top
 
-	^ self processElementWithStackOperation: #handleIfStackIsValidToGetTop:
+	^ self processElementAtTheTopAccordingToStateWithStackOperation: #handleIfStackIsValidToGetTop:
 	
 	! !
 
 
-!OOStack methodsFor: 'operations - private' stamp: 'MV 11/2/2021 01:21:30'!
-processElementWithStackOperation: aSelector 
+!OOStack methodsFor: 'operations - private' stamp: 'MV 11/4/2021 14:18:17'!
+processElementAtTheTopAccordingToStateWithStackOperation: aSelector 
 
-	| processedElement  actualState |
+	| processedElement  currentState |
 	
-	actualState := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
+	currentState := StateOfStack subclasses detect: [:subclass | subclass canHandle: self].
 	
-	processedElement := (aSelector asMessageWith: self) sendTo: actualState new.
+	processedElement := (aSelector asMessageWith: self) sendTo: currentState new.
 	
 	^ processedElement .
 	
-	! !
-
-!OOStack methodsFor: 'operations - private' stamp: 'MV 11/2/2021 01:24:08'!
-raiseErrorDueToEmptyStack
-
-	self error: OOStack stackEmptyErrorDescription 
 	! !
 
 !OOStack methodsFor: 'operations - private' stamp: 'MV 10/30/2021 21:12:35'!
@@ -443,6 +442,13 @@ safePop
 safeTop
 
 	^ stackCollection at: 1! !
+
+
+!OOStack methodsFor: 'private' stamp: 'MV 11/2/2021 01:24:08'!
+raiseErrorDueToEmptyStack
+
+	self error: OOStack stackEmptyErrorDescription 
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -463,19 +469,23 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'MV 11/4/2021 03:22:35'!
+!SentenceFinderByPrefix methodsFor: 'finding' stamp: 'MV 11/4/2021 14:05:38'!
 find: aPrefix	
- 
-	associatedStack isEmpty ifTrue: [self error: self class cannotFindSentecesWithAPrefixInAnEmptyStack ] .
+
+	^ self accordingToCurrentStateOfStackFind: aPrefix.! !
+
+
+!SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 14:07:39'!
+accordingToCurrentStateOfStackFind: aPrefix
+
+	| searchResults  currentState |
 	
-	^ self searchForSentenceMatchingsWith: aPrefix.! !
-
-
-!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'MV 11/2/2021 02:07:15'!
-initializeWith: aStackToAssociate
-
-	associatedStack := aStackToAssociate.! !
-
+	currentState := StateOfStack subclasses detect: [:subclass | subclass canHandle: associatedStack ].
+	
+	searchResults := currentState new handleIfStackIsValidToUseWithASentenceFinder: self withPrefix: aPrefix.
+	
+	^ searchResults .
+	! !
 
 !SentenceFinderByPrefix methodsFor: 'finding - private' stamp: 'MV 11/4/2021 04:12:00'!
 compareStackSentenceWithPrefix: aPrefix andSaveInAuxiliarStack: anAuxiliarStack savingMatchesIn: searchResultsCollection
@@ -525,6 +535,19 @@ transferSentenceFrom: sourceStack to: destinationStack
 	
 	! !
 
+
+!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'MV 11/2/2021 02:07:15'!
+initializeWith: aStackToAssociate
+
+	associatedStack := aStackToAssociate.! !
+
+
+!SentenceFinderByPrefix methodsFor: 'private' stamp: 'MV 11/4/2021 13:38:14'!
+raiseErrorDueToEmptyStackWithinSentenceFinder
+
+	self error: self class cannotFindSentecesWithAPrefixInAnEmptyStack.
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
@@ -558,6 +581,11 @@ handleIfStackIsValidToGetTop: aStack
 
 !StateOfStack methodsFor: 'operation handling' stamp: 'MV 10/30/2021 20:49:20'!
 handleIfStackIsValidToPop: aStack
+
+	self subclassResponsibility.! !
+
+!StateOfStack methodsFor: 'operation handling' stamp: 'MV 11/4/2021 13:56:29'!
+handleIfStackIsValidToUseWithASentenceFinder: aSentenceFinder  withPrefix: aPrefix
 
 	self subclassResponsibility.! !
 
@@ -596,6 +624,11 @@ handleIfStackIsValidToPop: aStack
 	
 ! !
 
+!EmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/4/2021 13:56:43'!
+handleIfStackIsValidToUseWithASentenceFinder: aSentenceFinder withPrefix: aPrefix
+
+	aSentenceFinder raiseErrorDueToEmptyStackWithinSentenceFinder.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'EmptyStateOfStack class' category: 'Stack-Exercise'!
@@ -627,6 +660,11 @@ handleIfStackIsValidToPop: aStack
 
 	^ aStack safePop . 
 ! !
+
+!NotEmptyStateOfStack methodsFor: 'operation handling' stamp: 'MV 11/4/2021 13:40:34'!
+handleIfStackIsValidToUseWithASentenceFinder: aSentenceFinder withPrefix: aPrefix
+
+	^ aSentenceFinder searchForSentenceMatchingsWith: aPrefix.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
