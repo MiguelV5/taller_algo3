@@ -47,8 +47,8 @@ test03FailsIfGroupOfCommandsContainsInvalidCommandAfterSomeValidCommands
 		
 		! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:36:50'!
-test04IfOnlyOneValidCommandOfMovementIsSentMarsRoverMoves
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:00'!
+test04IfOnlyOneValidCommandOfMovementIsSentMarsRoverMovesCorrectly
 
 	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
 	command := 'f'.
@@ -59,8 +59,8 @@ test04IfOnlyOneValidCommandOfMovementIsSentMarsRoverMoves
 	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .
 	! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:36:57'!
-test05IfManyValidCommandsOfMovementAreSentMarsRoverMoves
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:04'!
+test05IfManyValidCommandsOfMovementAreSentMarsRoverMovesCorrectly
 
 	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
 	command := 'bf'.
@@ -70,8 +70,8 @@ test05IfManyValidCommandsOfMovementAreSentMarsRoverMoves
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
 	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:37:07'!
-test06IfOnlyOneValidCommandOfRotationIsSentMarsRoverRotates
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:10'!
+test06IfOnlyOneValidCommandOfRotationIsSentMarsRoverRotatesCorrectly
 
 	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
 	command := 'l'.
@@ -125,151 +125,162 @@ test09IfManyCombinedCommandsAreSentMarsRoverActsAsExpected
 ! !
 
 
-!MarsRoverTest methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 02:36:05'!
-atest01StartingPointsAreNotModifiedIfThereIsNoCommandSent
-	"chequear si es relevante"
-	|expectedStartingPlacementPoint expectedStartingCardinalPoint |
-	expectedStartingPlacementPoint:= (0@0).
-	expectedStartingCardinalPoint :=#North.
-	self assert:expectedStartingPlacementPoint equals:(marsRover currentPlacementPoint).
-	self assert: expectedStartingCardinalPoint equals:(marsRover currentCardinalPoint).! !
-
 
-!classDefinition: #Command category: 'Ejercicio-05-MarsRover'!
-Object subclass: #Command
+!classDefinition: #CommandInterpreter category: 'Ejercicio-05-MarsRover'!
+Object subclass: #CommandInterpreter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!Command methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:22:30'!
-evaluateA: aMarsRover accordingTo: aString
+!CommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:31:00'!
+interpretateIfCommandIsEmpty: aString forMarsRover: aMarsRover
 
 	self subclassResponsibility .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Command class' category: 'Ejercicio-05-MarsRover'!
-Command class
+!classDefinition: 'CommandInterpreter class' category: 'Ejercicio-05-MarsRover'!
+CommandInterpreter class
 	instanceVariableNames: ''!
 
-!Command class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:44:10'!
-verifyIfEmpty: aString
+!CommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 22:53:17'!
+verifyIfCommandIsEmpty: aString
 
 	self subclassResponsibility .
 ! !
 
 
-!classDefinition: #EmptyCommand category: 'Ejercicio-05-MarsRover'!
-Command subclass: #EmptyCommand
+!classDefinition: #EmptyCommandInterpreter category: 'Ejercicio-05-MarsRover'!
+CommandInterpreter subclass: #EmptyCommandInterpreter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!EmptyCommand methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:48:51'!
-evaluateA: aMarsRover accordingTo: aString
+!EmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:43:39'!
+interpretateIfCommandIsEmpty: aString forMarsRover: aMarsRover
 
-	aMarsRover proccessIfCommandIsIEmpty.
+	aMarsRover proccessEmptyCommand.
 
 	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'EmptyCommand class' category: 'Ejercicio-05-MarsRover'!
-EmptyCommand class
+!classDefinition: 'EmptyCommandInterpreter class' category: 'Ejercicio-05-MarsRover'!
+EmptyCommandInterpreter class
 	instanceVariableNames: ''!
 
-!EmptyCommand class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:44:10'!
-verifyIfEmpty: aString
+!EmptyCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 22:53:17'!
+verifyIfCommandIsEmpty: aString
 
 	^aString isEmpty = true .! !
 
 
-!classDefinition: #NotEmptyCommand category: 'Ejercicio-05-MarsRover'!
-Command subclass: #NotEmptyCommand
+!classDefinition: #NotEmptyCommandInterpreter category: 'Ejercicio-05-MarsRover'!
+CommandInterpreter subclass: #NotEmptyCommandInterpreter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyCommand methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:48:32'!
-evaluateA: aMarsRover accordingTo: aString
+!NotEmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:42:07'!
+interpretateIfCommandIsEmpty: aString forMarsRover: aMarsRover
 
-	aMarsRover proccessIfCommandIsNotEmpty: aString.
+	aMarsRover proccessNotEmptyCommand: aString.
 	
 ! !
 
-!NotEmptyCommand methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:04:00'!
-evaluateA: aMarsRover accordingTo: aString atIndex: anIndex
+!NotEmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:37:12'!
+interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: aMarsRover
 
 	self subclassResponsibility .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NotEmptyCommand class' category: 'Ejercicio-05-MarsRover'!
-NotEmptyCommand class
+!classDefinition: 'NotEmptyCommandInterpreter class' category: 'Ejercicio-05-MarsRover'!
+NotEmptyCommandInterpreter class
 	instanceVariableNames: ''!
 
-!NotEmptyCommand class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:10:41'!
-canHandle: aString atIndex: anIndex
+!NotEmptyCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 22:56:06'!
+canHandle: aOneCharacterString 
 
 	self subclassResponsibility ! !
 
-!NotEmptyCommand class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:44:10'!
-verifyIfEmpty: aString
+!NotEmptyCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 22:55:36'!
+canHandle: aOneCharacterString atIndex: anIndex
+
+	self subclassResponsibility ! !
+
+!NotEmptyCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 23:11:55'!
+isValidCommand: aOneCharacterString
+
+	 ^( (aOneCharacterString =  'f') | (aOneCharacterString  = 'b' ) | (aOneCharacterString = 'l') | ( aOneCharacterString  = 'r' ) ).! !
+
+!NotEmptyCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 22:53:17'!
+verifyIfCommandIsEmpty: aString
 
 	^aString isEmpty = false.
 ! !
 
 
-!classDefinition: #NotEmptyInvalidCommand category: 'Ejercicio-05-MarsRover'!
-NotEmptyCommand subclass: #NotEmptyInvalidCommand
+!classDefinition: #NotEmptyInvalidCommandInterpreter category: 'Ejercicio-05-MarsRover'!
+NotEmptyCommandInterpreter subclass: #NotEmptyInvalidCommandInterpreter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyInvalidCommand methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:05:08'!
-evaluateA: aMarsRover accordingTo: aString atIndex: anIndex
+!NotEmptyInvalidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:26'!
+interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: aMarsRover
 
-	aMarsRover proccessIfCommandIsInvalid.
+	aMarsRover proccessInvalidCommand.
 
 	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NotEmptyInvalidCommand class' category: 'Ejercicio-05-MarsRover'!
-NotEmptyInvalidCommand class
+!classDefinition: 'NotEmptyInvalidCommandInterpreter class' category: 'Ejercicio-05-MarsRover'!
+NotEmptyInvalidCommandInterpreter class
 	instanceVariableNames: ''!
 
-!NotEmptyInvalidCommand class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:10:58'!
+!NotEmptyInvalidCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 23:12:20'!
+canHandle: aOneCharacterString 
+
+	^ (self isValidCommand: aOneCharacterString) not.! !
+
+!NotEmptyInvalidCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:10:58'!
 canHandle: aString atIndex: anIndex
 
 	^( ((aString at: anIndex ) asString =  'f') | ((aString at: anIndex ) asString = 'b' )| ((aString at: anIndex ) asString ='l') | (( aString at: anIndex )asString ='r') ) = false.! !
 
 
-!classDefinition: #NotEmptyValidCommand category: 'Ejercicio-05-MarsRover'!
-NotEmptyCommand subclass: #NotEmptyValidCommand
+!classDefinition: #NotEmptyValidCommandInterpreter category: 'Ejercicio-05-MarsRover'!
+NotEmptyCommandInterpreter subclass: #NotEmptyValidCommandInterpreter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyValidCommand methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:04:55'!
-evaluateA: aMarsRover accordingTo: aString atIndex: anIndex
+!NotEmptyValidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:47'!
+interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: aMarsRover 
 
-	aMarsRover proccessIfCommandIsValid: aString at: anIndex .
+	aMarsRover proccessValidCommand: aOneCharacterString
 
 ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NotEmptyValidCommand class' category: 'Ejercicio-05-MarsRover'!
-NotEmptyValidCommand class
+!classDefinition: 'NotEmptyValidCommandInterpreter class' category: 'Ejercicio-05-MarsRover'!
+NotEmptyValidCommandInterpreter class
 	instanceVariableNames: ''!
 
-!NotEmptyValidCommand class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:11:10'!
+!NotEmptyValidCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 23:12:48'!
+canHandle: aOneCharacterString 
+
+	^ self isValidCommand: aOneCharacterString.! !
+
+!NotEmptyValidCommandInterpreter class methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:11:10'!
 canHandle: aString atIndex: anIndex
 
 	^( ((aString at: anIndex ) asString =  'f') | ((aString at: anIndex ) asString = 'b' )| ((aString at: anIndex ) asString ='l') | (( aString at: anIndex )asString ='r') ) = true.! !
@@ -282,21 +293,21 @@ Object subclass: #MarsRover
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!MarsRover methodsFor: 'initialization' stamp: 'MV 11/13/2021 03:47:26'!
+!MarsRover methodsFor: 'initialization' stamp: 'MV 11/13/2021 22:29:15'!
 initializeWith: aStartingPoint andFacingTowards: aCardinalPoint
 
 	currentCardinalPoint:= aCardinalPoint .
 	currentPlacementPoint:=aStartingPoint .
-	currentCommand := EmptyCommand new.
+	currentCommand := EmptyCommandInterpreter new.
 ! !
 
 
-!MarsRover methodsFor: 'command proccesing - public' stamp: 'MV 11/13/2021 03:59:52'!
+!MarsRover methodsFor: 'command proccesing - public' stamp: 'MV 11/14/2021 00:31:47'!
 processCommand: aString 
 
-	currentCommand := (Command subclasses detect: [:commandSubclass | commandSubclass verifyIfEmpty: aString ]) new.
+	currentCommand := (CommandInterpreter subclasses detect: [:commandSubclass | commandSubclass verifyIfCommandIsEmpty: aString ]) new.
 	
-	currentCommand evaluateA: self accordingTo: aString. 													"chan"
+	currentCommand interpretateIfCommandIsEmpty: aString forMarsRover: self. 												
 	
 ! !
 
@@ -373,40 +384,36 @@ executeActionAccordingTo: aOneCharacterString
 		currentCardinalPoint = #East
 		ifTrue:[^currentCardinalPoint := #South]].! !
 
-!MarsRover methodsFor: 'command proccessing - private' stamp: 'pb 10/30/2021 02:46:36'!
-verifyIfCommandIn: aString isValidIn: anIndex
 
-	^(((aString at: anIndex ) asString =  'f') | ((aString at: anIndex ) asString = 'b' )| ((aString at: anIndex ) asString ='l') | (( aString at: anIndex )asString ='r'))! !
-
-
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:48:51'!
-proccessIfCommandIsIEmpty
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:40:09'!
+proccessEmptyCommand
 
 	self error: self class invalidCommandErrorDescription! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:58:24'!
-proccessIfCommandIsInvalid
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:26'!
+proccessInvalidCommand
 
 	self error: self class invalidCommandErrorDescription
 
 ! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 04:11:50'!
-proccessIfCommandIsNotEmpty: aString
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:40:31'!
+proccessNotEmptyCommand: aString
 
-	| currentIndex |
+	| collectionOfCharacters |
 	
-	currentIndex:=1.
-	aString size timesRepeat: [
-		currentCommand := (NotEmptyCommand subclasses detect: [:notEmptyCommandSubclass | notEmptyCommandSubclass canHandle: aString atIndex: currentIndex ]) new.
-		currentCommand evaluateA: self accordingTo: aString atIndex: currentIndex.
-		currentIndex := currentIndex+1
-		].! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/13/2021 03:57:47'!
-proccessIfCommandIsValid: aString at: currentIndex
+	collectionOfCharacters := aString asOrderedCollection collect: [:aCharacter | aCharacter asString ].
+	collectionOfCharacters do: [:aOneCharacterString | 
+			currentCommand := (NotEmptyCommandInterpreter subclasses detect: [:notEmptyCommandSubclass | notEmptyCommandSubclass canHandle: aOneCharacterString ]) new.
+		currentCommand interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: self.
+		].
+	! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:47'!
+proccessValidCommand: aOneCharacterString
 	
-	self executeActionAccordingTo: (aString at: currentIndex) asString ! !
+	self executeActionAccordingTo: aOneCharacterString ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
