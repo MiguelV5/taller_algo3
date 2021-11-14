@@ -5,10 +5,10 @@ TestCase subclass: #MarsRoverTest
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!MarsRoverTest methodsFor: 'setUp/tearDown' stamp: 'pb 10/30/2021 01:03:58'!
+!MarsRoverTest methodsFor: 'setUp/tearDown' stamp: 'MV 11/14/2021 02:11:33'!
 setUp
 	
-	marsRover := MarsRover with: 0@0 facingTowards: #North .! !
+	marsRover := MarsRover with: 0@0 facingTowards: NorthCardinalPoint new.! !
 
 
 !MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:35:30'!
@@ -26,104 +26,365 @@ test02FailsIfCommandIsEmpty
 		withExceptionDo: [:anError | self assert: anError messageText equals: 	MarsRover invalidCommandErrorDescription ].
 	! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:36:43'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:18:45'!
 test03FailsIfGroupOfCommandsContainsInvalidCommandAfterSomeValidCommands
 	
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	
 	command := 'ffrr x blr'.
 	expectedCurrentPlacementPoint := (0@2).
-	expectedCurrentCardinalPoint := #South.
 	
 	self  should: [marsRover processCommand: command] 
 		raise: Error  
 		withExceptionDo: [:anError | 
 			self assert: anError messageText equals: 	MarsRover invalidCommandErrorDescription. 
 			self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-			self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .
+			self assert: (marsRover currentCardinalPoint isKindOf:SouthCardinalPoint) .
 		].
 
 	
 		
 		! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:00'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:19:26'!
 test04IfOnlyOneValidCommandOfMovementIsSentMarsRoverMovesCorrectly
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	command := 'f'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@1).
-	expectedCurrentCardinalPoint := #North.
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .
+	self assert:  (marsRover currentCardinalPoint isKindOf: NorthCardinalPoint).
 	! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:04'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:19:49'!
 test05IfManyValidCommandsOfMovementAreSentMarsRoverMovesCorrectly
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	command := 'bf'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@0).
-	expectedCurrentCardinalPoint := #North.
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .! !
+	self assert: (marsRover currentCardinalPoint isKindOf:NorthCardinalPoint).! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 14:41:10'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:20:13'!
 test06IfOnlyOneValidCommandOfRotationIsSentMarsRoverRotatesCorrectly
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	command := 'l'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@0).
-	expectedCurrentCardinalPoint := #West.
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .! !
+	self assert: (marsRover currentCardinalPoint isKindOf: WestCardinalPoint).! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:37:14'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:20:27'!
 test07IfManyValidCommandsOfRotationAreSentMarsRoverRotatesCorrectly
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	command := 'rrrl'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@0).
-	expectedCurrentCardinalPoint := #South.
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .! !
+	self assert: (marsRover currentCardinalPoint isKindOf:SouthCardinalPoint).! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:37:23'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:21:09'!
 test08IfEnoughValidCommandsOfRotationAreSentForA360RotationMarsRoverRotatesCorrectly
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	
 	command := 'rrrr'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@0).
-	expectedCurrentCardinalPoint := #North.
 	
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .
+	self assert:  (marsRover currentCardinalPoint isKindOf:NorthCardinalPoint) .
 	
 	command := 'llll'.
 	marsRover processCommand: command .
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .! !
+	self assert: (marsRover currentCardinalPoint isKindOf:NorthCardinalPoint).! !
 
-!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/13/2021 02:37:32'!
+!MarsRoverTest methodsFor: 'testing' stamp: 'MV 11/14/2021 02:21:30'!
 test09IfManyCombinedCommandsAreSentMarsRoverActsAsExpected
 
-	|command expectedCurrentPlacementPoint expectedCurrentCardinalPoint|
+	|command expectedCurrentPlacementPoint |
 	
 	command := 'ffrrblr'.
 	marsRover processCommand: command .
 	expectedCurrentPlacementPoint := (0@3).
-	expectedCurrentCardinalPoint := #South.
 	
 	self assert: expectedCurrentPlacementPoint equals: marsRover currentPlacementPoint .
-	self assert: expectedCurrentCardinalPoint equals: marsRover currentCardinalPoint .
+	self assert: (marsRover currentCardinalPoint isKindOf:SouthCardinalPoint).
 ! !
 
+
+
+!classDefinition: #CardinalPoint category: 'Ejercicio-05-MarsRover'!
+Object subclass: #CardinalPoint
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!CardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+moveBackwardsAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	self subclassResponsibility.! !
+
+!CardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+moveForwardAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	self subclassResponsibility.! !
+
+!CardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+rotateLeftAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	self subclassResponsibility.! !
+
+!CardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+rotateRightAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	self subclassResponsibility.! !
+
+
+!classDefinition: #EastCardinalPointAnalizer category: 'Ejercicio-05-MarsRover'!
+CardinalPoint subclass: #EastCardinalPointAnalizer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!EastCardinalPointAnalizer methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+moveBackwardsAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover decreasePlacementPointXAxisByOne.! !
+
+!EastCardinalPointAnalizer methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+moveForwardAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover incresePlacementPointXAxisByOne.! !
+
+!EastCardinalPointAnalizer methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+rotateLeftAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToNorth! !
+
+!EastCardinalPointAnalizer methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+rotateRightAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToSouth ! !
+
+
+!classDefinition: #NorthCardinalPoint category: 'Ejercicio-05-MarsRover'!
+CardinalPoint subclass: #NorthCardinalPoint
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!NorthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+moveBackwardsAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	 ^ aMarsRover decreasePlacementPointYAxisByOne! !
+
+!NorthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+moveForwardAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover increasePlacementPointYAxisByOne .
+	! !
+
+!NorthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+rotateLeftAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^aMarsRover rotateToWest 
+
+	! !
+
+!NorthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+rotateRightAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^aMarsRover rotateToEast 
+
+	! !
+
+
+!classDefinition: #SouthCardinalPoint category: 'Ejercicio-05-MarsRover'!
+CardinalPoint subclass: #SouthCardinalPoint
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!SouthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+moveBackwardsAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover increasePlacementPointYAxisByOne. ! !
+
+!SouthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+moveForwardAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover decreasePlacementPointYAxisByOne .
+! !
+
+!SouthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+rotateLeftAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToEast ! !
+
+!SouthCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+rotateRightAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToWest ! !
+
+
+!classDefinition: #WestCardinalPoint category: 'Ejercicio-05-MarsRover'!
+CardinalPoint subclass: #WestCardinalPoint
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!WestCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+moveBackwardsAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	 ^ aMarsRover incresePlacementPointXAxisByOne.! !
+
+!WestCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+moveForwardAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover decreasePlacementPointXAxisByOne .
+! !
+
+!WestCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+rotateLeftAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToSouth 
+! !
+
+!WestCardinalPoint methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+rotateRightAccordingToFacingDirectionOfMarsRover: aMarsRover
+
+	^ aMarsRover rotateToNorth ! !
+
+
+!classDefinition: #CommandExecutor category: 'Ejercicio-05-MarsRover'!
+Object subclass: #CommandExecutor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!CommandExecutor methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:21:06'!
+beExecutedFor: aMarsRover
+
+	self subclassResponsibility .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CommandExecutor class' category: 'Ejercicio-05-MarsRover'!
+CommandExecutor class
+	instanceVariableNames: ''!
+
+!CommandExecutor class methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:10:31'!
+canHandle: aOneCharacterString
+
+	self subclassResponsibility.! !
+
+
+!classDefinition: #BackwardsCommandExecutor category: 'Ejercicio-05-MarsRover'!
+CommandExecutor subclass: #BackwardsCommandExecutor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!BackwardsCommandExecutor methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:51:27'!
+beExecutedFor: aMarsRover
+
+	aMarsRover forCommandBackwardsEvaluateAccordingToCardinalPoints.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'BackwardsCommandExecutor class' category: 'Ejercicio-05-MarsRover'!
+BackwardsCommandExecutor class
+	instanceVariableNames: ''!
+
+!BackwardsCommandExecutor class methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:11:20'!
+canHandle: aOneCharacterString
+
+	^ aOneCharacterString = 'b'.! !
+
+
+!classDefinition: #ForwardCommandExecutor category: 'Ejercicio-05-MarsRover'!
+CommandExecutor subclass: #ForwardCommandExecutor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!ForwardCommandExecutor methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:51:49'!
+beExecutedFor: aMarsRover
+
+	aMarsRover forCommandForwardEvaluateAccordingToCardinalPoints ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ForwardCommandExecutor class' category: 'Ejercicio-05-MarsRover'!
+ForwardCommandExecutor class
+	instanceVariableNames: ''!
+
+!ForwardCommandExecutor class methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:11:30'!
+canHandle: aOneCharacterString
+
+	^ aOneCharacterString = 'f'.! !
+
+
+!classDefinition: #LeftCommandExecutor category: 'Ejercicio-05-MarsRover'!
+CommandExecutor subclass: #LeftCommandExecutor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!LeftCommandExecutor methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:51:59'!
+beExecutedFor: aMarsRover
+
+	aMarsRover forCommandLeftEvaluateAccordingToCardinalPoints ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'LeftCommandExecutor class' category: 'Ejercicio-05-MarsRover'!
+LeftCommandExecutor class
+	instanceVariableNames: ''!
+
+!LeftCommandExecutor class methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:11:46'!
+canHandle: aOneCharacterString
+
+	^ aOneCharacterString = 'l'.! !
+
+
+!classDefinition: #RightCommandExecutor category: 'Ejercicio-05-MarsRover'!
+CommandExecutor subclass: #RightCommandExecutor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio-05-MarsRover'!
+
+!RightCommandExecutor methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:52:09'!
+beExecutedFor: aMarsRover
+
+	aMarsRover forCommandRightEvaluateAccordingToCardinalPoints ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'RightCommandExecutor class' category: 'Ejercicio-05-MarsRover'!
+RightCommandExecutor class
+	instanceVariableNames: ''!
+
+!RightCommandExecutor class methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 01:12:31'!
+canHandle: aOneCharacterString
+
+	^ aOneCharacterString = 'r'.! !
 
 
 !classDefinition: #CommandInterpreter category: 'Ejercicio-05-MarsRover'!
@@ -158,10 +419,10 @@ CommandInterpreter subclass: #EmptyCommandInterpreter
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!EmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:43:39'!
+!EmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:49:50'!
 interpretateIfCommandIsEmpty: aString forMarsRover: aMarsRover
 
-	aMarsRover proccessEmptyCommand.
+	aMarsRover processEmptyCommand.
 
 	! !
 
@@ -184,10 +445,10 @@ CommandInterpreter subclass: #NotEmptyCommandInterpreter
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:42:07'!
+!NotEmptyCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:49:57'!
 interpretateIfCommandIsEmpty: aString forMarsRover: aMarsRover
 
-	aMarsRover proccessNotEmptyCommand: aString.
+	aMarsRover processNotEmptyCommand: aString.
 	
 ! !
 
@@ -231,10 +492,10 @@ NotEmptyCommandInterpreter subclass: #NotEmptyInvalidCommandInterpreter
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyInvalidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:26'!
+!NotEmptyInvalidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:50:11'!
 interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: aMarsRover
 
-	aMarsRover proccessInvalidCommand.
+	aMarsRover processInvalidCommand.
 
 	! !
 
@@ -262,10 +523,10 @@ NotEmptyCommandInterpreter subclass: #NotEmptyValidCommandInterpreter
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
 
-!NotEmptyValidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:47'!
+!NotEmptyValidCommandInterpreter methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:50:04'!
 interpretateIfNotEmptyCommandIsValid: aOneCharacterString forMarsRover: aMarsRover 
 
-	aMarsRover proccessValidCommand: aOneCharacterString
+	aMarsRover processValidCommand: aOneCharacterString
 
 ! !
 
@@ -288,7 +549,7 @@ canHandle: aString atIndex: anIndex
 
 !classDefinition: #MarsRover category: 'Ejercicio-05-MarsRover'!
 Object subclass: #MarsRover
-	instanceVariableNames: 'currentCardinalPoint currentPlacementPoint ffff currentCommand'
+	instanceVariableNames: 'currentCardinalPoint currentPlacementPoint currentCommand'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Ejercicio-05-MarsRover'!
@@ -322,83 +583,52 @@ currentPlacementPoint
 	
 	^currentPlacementPoint ! !
 
+!MarsRover methodsFor: 'accesing' stamp: 'MV 11/14/2021 01:37:25'!
+decreasePlacementPointXAxisByOne
 
-!MarsRover methodsFor: 'command proccessing - private' stamp: 'MV 11/13/2021 02:17:35'!
+	currentPlacementPoint := currentPlacementPoint - (1@0)! !
+
+!MarsRover methodsFor: 'accesing' stamp: 'MV 11/14/2021 01:37:21'!
+decreasePlacementPointYAxisByOne
+
+	currentPlacementPoint := currentPlacementPoint - (0@1)! !
+
+!MarsRover methodsFor: 'accesing' stamp: 'MV 11/14/2021 01:37:16'!
+increasePlacementPointYAxisByOne
+
+	currentPlacementPoint := currentPlacementPoint + (0@1)! !
+
+!MarsRover methodsFor: 'accesing' stamp: 'MV 11/14/2021 01:37:11'!
+incresePlacementPointXAxisByOne
+
+	currentPlacementPoint := currentPlacementPoint + (1@0)! !
+
+
+!MarsRover methodsFor: 'command execution - private' stamp: 'MV 11/14/2021 01:21:06'!
 executeActionAccordingTo: aOneCharacterString
+
+	| correspondingCommandExecutor |
+
+	correspondingCommandExecutor := (CommandExecutor subclasses detect: [:aCommandExecutorSubclass | aCommandExecutorSubclass canHandle: aOneCharacterString ]) new.
 	
-	aOneCharacterString = 'f' 
-	ifTrue: [
-		currentCardinalPoint = #North
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint + (0@1)].
-		
-		currentCardinalPoint = #West
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint - (1@0)].
-		
-		currentCardinalPoint = #South
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint - (0@1)].
-		
-		currentCardinalPoint = #East
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint + (1@0)].
-	].
-	
-	aOneCharacterString = 'b' 
-	ifTrue: [
-		currentCardinalPoint = #North
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint - (0@1)].
-		
-		currentCardinalPoint = #West
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint + (1@0)].
-		
-		currentCardinalPoint = #South
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint + (0@1)].
-		
-		currentCardinalPoint = #East
-		ifTrue:[^currentPlacementPoint := currentPlacementPoint - (1@0)].	
-	]. 
-	
-	aOneCharacterString = 'l' 
-	ifTrue: [
-		currentCardinalPoint = #North
-		ifTrue:[^currentCardinalPoint :=#West].
-		
-		currentCardinalPoint = #West
-		ifTrue:[^currentCardinalPoint := #South].
-		
-		currentCardinalPoint = #South
-		ifTrue:[^currentCardinalPoint := #East].
-		
-		currentCardinalPoint = #East
-		ifTrue:[^currentCardinalPoint := #North]].
-	
-	aOneCharacterString = 'r' 
-	ifTrue: [
-		currentCardinalPoint = #North
-		ifTrue:[^currentCardinalPoint := #East].
-		
-		currentCardinalPoint = #West
-		ifTrue:[^currentCardinalPoint := #North].
-		
-		currentCardinalPoint = #South
-		ifTrue:[^currentCardinalPoint := #West].
-		
-		currentCardinalPoint = #East
-		ifTrue:[^currentCardinalPoint := #South]].! !
+	correspondingCommandExecutor beExecutedFor: self.
+	! !
 
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:40:09'!
-proccessEmptyCommand
+!MarsRover methodsFor: 'command proccessing - private' stamp: 'MV 11/14/2021 00:50:11'!
+processEmptyCommand
 
-	self error: self class invalidCommandErrorDescription! !
+	self processInvalidCommand .! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:26'!
-proccessInvalidCommand
+!MarsRover methodsFor: 'command proccessing - private' stamp: 'MV 11/14/2021 00:50:11'!
+processInvalidCommand
 
 	self error: self class invalidCommandErrorDescription
 
 ! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:40:31'!
-proccessNotEmptyCommand: aString
+!MarsRover methodsFor: 'command proccessing - private' stamp: 'MV 11/14/2021 00:49:57'!
+processNotEmptyCommand: aString
 
 	| collectionOfCharacters |
 	
@@ -410,10 +640,54 @@ proccessNotEmptyCommand: aString
 		].
 	! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 00:39:47'!
-proccessValidCommand: aOneCharacterString
+!MarsRover methodsFor: 'command proccessing - private' stamp: 'MV 11/14/2021 00:50:04'!
+processValidCommand: aOneCharacterString
 	
 	self executeActionAccordingTo: aOneCharacterString ! !
+
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:55:37'!
+forCommandBackwardsEvaluateAccordingToCardinalPoints
+
+	^ currentCardinalPoint moveBackwardsAccordingToFacingDirectionOfMarsRover: self.
+	
+		! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:58'!
+forCommandForwardEvaluateAccordingToCardinalPoints
+		
+	currentCardinalPoint moveForwardAccordingToFacingDirectionOfMarsRover: self.! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:16'!
+forCommandLeftEvaluateAccordingToCardinalPoints
+		
+	^ currentCardinalPoint rotateLeftAccordingToFacingDirectionOfMarsRover: self! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:56:35'!
+forCommandRightEvaluateAccordingToCardinalPoints
+		
+	^ currentCardinalPoint rotateRightAccordingToFacingDirectionOfMarsRover: self.	
+! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:43:16'!
+rotateToEast
+
+	^ currentCardinalPoint := EastCardinalPointAnalizer new! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:31:40'!
+rotateToNorth
+
+	^ currentCardinalPoint := NorthCardinalPoint new! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:30:31'!
+rotateToSouth
+
+	^ currentCardinalPoint := SouthCardinalPoint new! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MV 11/14/2021 02:30:03'!
+rotateToWest
+
+	^ currentCardinalPoint := WestCardinalPoint new! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
