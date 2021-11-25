@@ -91,69 +91,82 @@ test07AccountKnowsItsTransactions
 
 !classDefinition: #TransferenceTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #TransferenceTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'originReceptiveAccount destinationReceptiveAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferenceTest methodsFor: 'as yet unclassified' stamp: 'MV 11/23/2021 02:05:45'!
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 02:17:42'!
 test01ATrasferedAmountFromOneAccountToAnotherWasMadeCorrectly
+	
+	self assertThatOriginAndDestinationAccountsHaveTheExpectedBalanceAfterATransferenceFor: 10*peso.! !
 
-	| originAccount destinationAccount expectedOriginAccountBalance expectedDestinationAccountBalance |
-	
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	
-	expectedOriginAccountBalance := -10*peso.
-	expectedDestinationAccountBalance := 10*peso .
-	
-	Transference from: originAccount to: destinationAccount for: 10*peso.
-	
-	self assert: expectedOriginAccountBalance equals: originAccount balance.
-	self assert: expectedDestinationAccountBalance equals: destinationAccount balance.! !
-
-!TransferenceTest methodsFor: 'as yet unclassified' stamp: 'MV 11/23/2021 02:03:07'!
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 02:17:18'!
 test02TheTransferenceWasMadeWithTheExpectedAmount
 
-	| originAccount destinationAccount expectedOriginAccountBalance expectedDestinationAccountBalance transfer |
-	
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	
-	expectedOriginAccountBalance := -1000*peso.
-	expectedDestinationAccountBalance := 1000*peso .
-	
-	transfer := Transference from: originAccount to: destinationAccount for: 1000*peso.
-	
-	self assert: expectedOriginAccountBalance equals: originAccount balance.
-	self assert: expectedDestinationAccountBalance equals: destinationAccount balance.
-	self assert:  1000*peso equals: transfer value.! !
+	| transference |
+	transference := self assertThatOriginAndDestinationAccountsHaveTheExpectedBalanceAfterATransferenceFor: 1000*peso.
+	self assert:  1000*peso equals: transference value.! !
 
-!TransferenceTest methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 17:05:28'!
-test03
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 02:44:28'!
+test03TheWithdrawOfATransferenceKnowsItsCounterpart
+	
+	self assertThatAskingforTheCounterpartOfTheAsocciatedTransactionFromTransference: #associatedWithdraw  resultsIn: DepositFromTransference .! !
 
-	| originAccount destinationAccount transfer expectedDepositFromTransference |
-	
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	
-	transfer := Transference from: originAccount to: destinationAccount for: 1000*peso.
-	expectedDepositFromTransference := TransferenceRelatedDeposit for: 1000*peso associatedTo: transfer.
-	
-	self assert: expectedDepositFromTransference equals: transfer associatedWithdraw counterpart. ! !
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 02:45:12'!
+test04TheDepositOfATransferenceKnowsItsCounterpart
 
-!TransferenceTest methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 17:05:28'!
-test04
+	self assertThatAskingforTheCounterpartOfTheAsocciatedTransactionFromTransference: #associatedDeposit  resultsIn:  WithdrawFromTransference .
+	! !
 
-	| originAccount destinationAccount transfer expectedWithdrawFromTransference |
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 01:57:13'!
+test05TranferenceIsInvalidIfOriginAccountAndDestinationAccountAreTheSame
 	
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
+	self should: [Transference from: originReceptiveAccount to: originReceptiveAccount for: 1000*peso.] raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
+
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 01:56:49'!
+test06TransferenceOfANegativeAmountIsInvalid
 	
-	transfer := Transference from: originAccount to: destinationAccount for: 1000*peso.
-	expectedWithdrawFromTransference := TransferenceRelatedDeposit for: 1000*peso associatedTo: transfer.
+	self should: [Transference from: originReceptiveAccount to: destinationReceptiveAccount for: -1000*peso.] raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
+
+!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 01:57:01'!
+test07TransferenceOfAZeroAmountIsInvalid
 	
-	self assert: expectedWithdrawFromTransference equals: transfer associatedDeposit counterpart. ! !
+	self should: [Transference from: originReceptiveAccount to: destinationReceptiveAccount for: 0*peso.] raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
+
+
+!TransferenceTest methodsFor: 'setUp' stamp: 'pb 11/25/2021 01:53:36'!
+setUp
+
+	originReceptiveAccount := ReceptiveAccount new.
+	destinationReceptiveAccount := ReceptiveAccount new.! !
+
+
+!TransferenceTest methodsFor: 'assertions' stamp: 'pb 11/25/2021 02:46:25'!
+assertThatAskingforTheCounterpartOfTheAsocciatedTransactionFromTransference: associatedTransaction resultsIn: expectedCounterpartClass
+
+	| transference expectedWithdrawFromTransference |
+	
+	transference := Transference from: originReceptiveAccount to: destinationReceptiveAccount for: 1000*peso.
+	expectedWithdrawFromTransference := expectedCounterpartClass for: 1000*peso associatedTo: transference.
+	
+	self assert: expectedWithdrawFromTransference equals: (associatedTransaction asMessage sendTo: transference).
+	! !
+
+!TransferenceTest methodsFor: 'assertions' stamp: 'pb 11/25/2021 02:18:15'!
+assertThatOriginAndDestinationAccountsHaveTheExpectedBalanceAfterATransferenceFor: anAmount 
+	
+	| expectedOriginAccountBalance expectedDestinationAccountBalance transference |
+
+	expectedOriginAccountBalance := anAmount negated.
+	expectedDestinationAccountBalance := anAmount .
+	
+	transference :=Transference from: originReceptiveAccount to: destinationReceptiveAccount for: anAmount .
+	
+	self assert: expectedOriginAccountBalance equals: originReceptiveAccount balance.
+	self assert: expectedDestinationAccountBalance equals: destinationReceptiveAccount balance .
+	
+	^transference! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -163,15 +176,16 @@ Object subclass: #AccountTransaction
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'MV 11/24/2021 16:16:58'!
-handleHowDoesThisTransactionAffectTheBalance
-
-	self subclassResponsibility.! !
-
 !AccountTransaction methodsFor: 'value' stamp: 'MV 11/24/2021 17:01:36'!
 value 
 
 	^ value.! !
+
+
+!AccountTransaction methodsFor: 'information' stamp: 'pb 11/25/2021 01:31:30'!
+handleHowDoesThisTransactionAffectBalance
+
+	self subclassResponsibility.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -200,6 +214,55 @@ register: aValue on: aReceptiveAccount thatComesFromTransference: aTransference
 	^ transaction! !
 
 
+!classDefinition: #DepositFromTransference category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #DepositFromTransference
+	instanceVariableNames: 'associatedTransference'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!DepositFromTransference methodsFor: 'initialize' stamp: 'MV 11/24/2021 16:28:26'!
+initializeFor: aValue associatedTo: aTransference
+
+	value := aValue .
+	associatedTransference := aTransference .
+
+
+	
+	
+! !
+
+
+!DepositFromTransference methodsFor: 'comparing' stamp: 'MV 11/24/2021 16:57:58'!
+= anotherTransferenceDeposit
+
+	^ value = anotherTransferenceDeposit value.
+	 "suena a que habria que comparar tambien si las transferencias a las que están asociadas ambas transacciones sean iguales, pero llevaria a implementar otro igual en la Transference que comparase su value y nada más, pues si ponemos a que compare sus patas entraria en recursion infinita. " 
+	! !
+
+
+!DepositFromTransference methodsFor: 'information' stamp: 'pb 11/25/2021 01:06:02'!
+counterpart
+		
+	^ associatedTransference associatedWithdraw.! !
+
+!DepositFromTransference methodsFor: 'information' stamp: 'pb 11/25/2021 01:31:30'!
+handleHowDoesThisTransactionAffectBalance
+
+	^ self value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'DepositFromTransference class' category: 'ServiciosFinancieros-Ejercicio'!
+DepositFromTransference class
+	instanceVariableNames: ''!
+
+!DepositFromTransference class methodsFor: 'instance creation' stamp: 'pb 11/25/2021 01:24:37'!
+for: aValue associatedTo: aTransference
+
+	^ DepositFromTransference new initializeFor: aValue associatedTo: aTransference .! !
+
+
 !classDefinition: #RegularDeposit category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #RegularDeposit
 	instanceVariableNames: ''
@@ -213,8 +276,8 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!RegularDeposit methodsFor: 'value' stamp: 'MV 11/24/2021 16:16:58'!
-handleHowDoesThisTransactionAffectTheBalance
+!RegularDeposit methodsFor: 'value' stamp: 'pb 11/25/2021 01:31:30'!
+handleHowDoesThisTransactionAffectBalance
 
 	^ self value! !
 
@@ -243,8 +306,8 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!RegularWithdraw methodsFor: 'value' stamp: 'MV 11/24/2021 16:16:58'!
-handleHowDoesThisTransactionAffectTheBalance
+!RegularWithdraw methodsFor: 'value' stamp: 'pb 11/25/2021 01:31:30'!
+handleHowDoesThisTransactionAffectBalance
 
 	^ value negated! !
 
@@ -260,31 +323,14 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
-!classDefinition: #TransferenceRelatedDeposit category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #TransferenceRelatedDeposit
+!classDefinition: #WithdrawFromTransference category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #WithdrawFromTransference
 	instanceVariableNames: 'associatedTransference'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferenceRelatedDeposit methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 16:57:58'!
-= anotherTransferenceDeposit
-
-	^ value = anotherTransferenceDeposit value.
-	 "suena a que habria que comparar tambien si las transferencias a las que están asociadas ambas transacciones sean iguales, pero llevaria a implementar otro igual en la Transference que comparase su value y nada más, pues si ponemos a que compare sus patas entraria en recursion infinita. " 
-	! !
-
-!TransferenceRelatedDeposit methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 17:03:50'!
-counterpart
-		
-	^ associatedTransference associatedWithdraw.! !
-
-!TransferenceRelatedDeposit methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 17:00:42'!
-handleHowDoesThisTransactionAffectTheBalance
-
-	^ self value! !
-
-!TransferenceRelatedDeposit methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 16:28:26'!
+!WithdrawFromTransference methodsFor: 'initialize' stamp: 'MV 11/24/2021 16:28:14'!
 initializeFor: aValue associatedTo: aTransference
 
 	value := aValue .
@@ -292,58 +338,37 @@ initializeFor: aValue associatedTo: aTransference
 
 
 	
-	
-! !
+	! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'TransferenceRelatedDeposit class' category: 'ServiciosFinancieros-Ejercicio'!
-TransferenceRelatedDeposit class
-	instanceVariableNames: ''!
+!WithdrawFromTransference methodsFor: 'comparing' stamp: 'pb 11/25/2021 01:10:14'!
+= anotherTransferenceWithdraw
 
-!TransferenceRelatedDeposit class methodsFor: 'instance creation' stamp: 'MV 11/24/2021 17:05:28'!
-for: aValue associatedTo: aTransference
+	^ value = anotherTransferenceWithdraw value.
+	 "suena a que habria que comparar tambien si las transferencias a las que están asociadas ambas transacciones sean iguales, pero llevaria a implementar otro igual en la Transference que comparase su value y nada más, pues si ponemos a que compare sus patas entraria en recursion infinita. " 
+	! !
 
-	^ TransferenceRelatedDeposit new initializeFor: aValue associatedTo: aTransference .! !
 
-
-!classDefinition: #TransferenceRelatedWithdraw category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #TransferenceRelatedWithdraw
-	instanceVariableNames: 'associatedTransference'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!TransferenceRelatedWithdraw methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 16:41:35'!
+!WithdrawFromTransference methodsFor: 'information' stamp: 'MV 11/24/2021 16:41:35'!
 counterpart
 	
 	^ associatedTransference associatedDeposit. ! !
 
-!TransferenceRelatedWithdraw methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 17:00:25'!
-handleHowDoesThisTransactionAffectTheBalance
+!WithdrawFromTransference methodsFor: 'information' stamp: 'pb 11/25/2021 01:31:30'!
+handleHowDoesThisTransactionAffectBalance
 
 	^ value negated! !
 
-!TransferenceRelatedWithdraw methodsFor: 'as yet unclassified' stamp: 'MV 11/24/2021 16:28:14'!
-initializeFor: aValue associatedTo: aTransference
-
-	value := aValue .
-	associatedTransference := aTransference .
-
-
-	
-	! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'TransferenceRelatedWithdraw class' category: 'ServiciosFinancieros-Ejercicio'!
-TransferenceRelatedWithdraw class
+!classDefinition: 'WithdrawFromTransference class' category: 'ServiciosFinancieros-Ejercicio'!
+WithdrawFromTransference class
 	instanceVariableNames: ''!
 
-!TransferenceRelatedWithdraw class methodsFor: 'instance creation' stamp: 'MV 11/24/2021 17:05:35'!
+!WithdrawFromTransference class methodsFor: 'instance creation' stamp: 'pb 11/25/2021 01:25:06'!
 for: aValue associatedTo: aTransference
 
-	^ TransferenceRelatedWithdraw new initializeFor: aValue associatedTo: aTransference .
+	^ WithdrawFromTransference new initializeFor: aValue associatedTo: aTransference .
 	! !
 
 
@@ -360,10 +385,10 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MV 11/24/2021 16:16:59'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'pb 11/25/2021 01:31:30'!
 balance
 
-	^transactions sum: [ :aTransaction | aTransaction handleHowDoesThisTransactionAffectTheBalance ] ifEmpty: [ 0 ]
+	^transactions sum: [ :aTransaction | aTransaction handleHowDoesThisTransactionAffectBalance ] ifEmpty: [ 0 ]
 	
 	! !
 
@@ -385,7 +410,6 @@ register: aTransaction
 transactions 
 
 	^ transactions copy! !
-
 
 
 !classDefinition: #Transference category: 'ServiciosFinancieros-Ejercicio'!
@@ -426,16 +450,23 @@ value
 Transference class
 	instanceVariableNames: 'associatedWithdraw associatedDeposit'!
 
-!Transference class methodsFor: 'instance creation' stamp: 'MV 11/24/2021 17:05:35'!
+!Transference class methodsFor: 'instance creation' stamp: 'pb 11/25/2021 01:46:46'!
 from: anOriginReceptiveAccount to: aDestinationReceptiveAccount for: amountToTransfer
 
 	| transference depositFromTransference withdrawFromTransference |
 	
+	((anOriginReceptiveAccount = aDestinationReceptiveAccount) | (amountToTransfer<=0) ) ifTrue: [self error: self invalidTransferenceErrorDescription].
+	
 	transference := self new .
-
-	withdrawFromTransference := TransferenceRelatedWithdraw register: amountToTransfer on: anOriginReceptiveAccount thatComesFromTransference: transference.
-	depositFromTransference := TransferenceRelatedDeposit register: amountToTransfer on: aDestinationReceptiveAccount thatComesFromTransference: transference.
+	
+	withdrawFromTransference := WithdrawFromTransference register: amountToTransfer on: anOriginReceptiveAccount thatComesFromTransference: transference.
+	depositFromTransference := DepositFromTransference register: amountToTransfer on: aDestinationReceptiveAccount thatComesFromTransference: transference.
 	
 	transference initializeWithValue: amountToTransfer thatComesFromWithdraw: withdrawFromTransference toDeposit: depositFromTransference .
 	
 	^ transference.! !
+
+
+!Transference class methodsFor: 'as yet unclassified' stamp: 'pb 11/25/2021 01:20:13'!
+invalidTransferenceErrorDescription
+	^'Tranferencia invalida'! !
