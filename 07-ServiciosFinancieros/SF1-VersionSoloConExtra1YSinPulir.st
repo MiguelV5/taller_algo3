@@ -1,16 +1,9 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: 'portfolioWithNoAccounts receptiveAccountOne portfolioWithOneAccount receptiveAccountTwo receptiveAccountThree portfolioWithMultipleAccounts portfolioWithPorfolio portfolioWithPorfolioWithNoAccounts depositOfAccountOne depositOfAccountTwo depositOfAccountThree'
+	instanceVariableNames: 'portfolioWithNoAccounts receptiveAccountOne portfolioWithOneAccount receptiveAccountTwo receptiveAccountThree portfolioWithMultipleAccounts portfolioWithPorfolio portfolioWithPorfolioWithNoAccounts depositOfAccountOne depositOfAccountTwo depositOfAccountThree transactionsOfAccountsOneTwoAndThree'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
-
-!PortfolioTest methodsFor: 'tests' stamp: 'pb 11/28/2021 01:39:40'!
-atest04
-
-	| aTransaction |
-	aTransaction:= RegularDeposit for: 10*peso.
-	self should: [portfolioWithNoAccounts hasRegistered: aTransaction ] raise:  Error withExceptionDo: [:anError | self assert: anError messageText equals: Portfolio noAccountsNoTransactionErrorDescription]! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'pb 11/26/2021 02:05:10'!
 test01IfPorfolioHasNoAccountsBalanceIsZero
@@ -27,26 +20,23 @@ test03IfPortfolioHasMultipleAccountsBalanceIsTheSumOfAllTheAcountsBalances
 
 	self assert: 45*peso equals: portfolioWithMultipleAccounts balance .! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'pb 11/28/2021 03:11:20'!
-test04PortfolioWithNoAccountsCanNotRegisterATransaction
+!PortfolioTest methodsFor: 'tests' stamp: 'MV 11/28/2021 23:21:04'!
+test04PortfolioWithNoAccountsDoesNotRegisterATransaction
 
-	| aTransaction |
-	
-	aTransaction:= RegularDeposit for: 10*peso.
-	
-	self should: [portfolioWithNoAccounts hasRegistered: aTransaction ] raise:  Error withExceptionDo: [:anError | self assert: anError messageText equals: Portfolio noAccountsNoTransactionErrorDescription]! !
+	self deny: (portfolioWithNoAccounts hasRegistered: depositOfAccountOne ).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'pb 11/28/2021 03:18:25'!
-test05DifferentPorfoliosHaveRegisteredATransaction
+!PortfolioTest methodsFor: 'tests' stamp: 'MV 11/28/2021 23:55:57'!
+test05PorfoliosWithAtLeastOneAccountHaveRegisteredTransactions
 
-	self assertThatPortfolioWithOneAccountHasRegisteredATransaction .
-	
-	self assertThatPortfolioWithMultipleAccountsHasRegisteredAllOfTheTransactions .! !
+	self assertThatPortfolio: portfolioWithOneAccount hasRegisteredAllOfItsTransactionsFrom: receptiveAccountOne transactions .
+ 	self assertThatPortfolio: portfolioWithMultipleAccounts hasRegisteredAllOfItsTransactionsFrom: transactionsOfAccountsOneTwoAndThree . 
 
-!PortfolioTest methodsFor: 'tests' stamp: 'pb 11/28/2021 01:40:26'!
+! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MV 11/28/2021 23:57:35'!
 test06PortfolioWithPortfolioHasRegisteredATransaction
 
-	self assert: (portfolioWithPorfolio hasRegistered: depositOfAccountThree ) .
+	self assertThatPortfolio: portfolioWithPorfolio  hasRegisteredAllOfItsTransactionsFrom: transactionsOfAccountsOneTwoAndThree .
 	! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'pb 11/28/2021 02:57:13'!
@@ -64,46 +54,50 @@ test09PortfolioWithPortfolioWithOneAccountKnowsAllTheAccountsTransactions
 
 	self assertThatTotalTransactionsAreTheOnesExpectedFor: portfolioWithPorfolio ! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'MV 11/29/2021 00:09:53'!
+test10PortfolioCanNotAddTheSameAccountTwice
 
-!PortfolioTest methodsFor: 'setUp' stamp: 'pb 11/26/2021 03:50:15'!
+	self 
+		should: [ portfolioWithOneAccount addToPortfolio: receptiveAccountOne ] 
+		raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Portfolio canNotAddPreviouslyExistingAccountInPortfolio ]! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MV 11/29/2021 00:12:04'!
+test11PortfolioCanNotAddTheSameAccountThatIsAlreadyContainedInAPortfolioInsideOfIt
+
+	self 
+		should: [ portfolioWithPorfolio addToPortfolio: receptiveAccountOne ] 
+		raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Portfolio canNotAddPreviouslyExistingAccountInPortfolio ]! !
+
+
+!PortfolioTest methodsFor: 'setUp' stamp: 'MV 11/28/2021 23:56:09'!
 setUp
-	
-	portfolioWithNoAccounts := Portfolio new.
-	
+
 	receptiveAccountOne:= ReceptiveAccount new.
-	depositOfAccountOne:=RegularDeposit register: 10*peso on: receptiveAccountOne .
-	portfolioWithOneAccount:= Portfolio new addToPortfolio: receptiveAccountOne.
-	
 	receptiveAccountTwo := ReceptiveAccount new.
 	receptiveAccountThree := ReceptiveAccount new.
 	
-	depositOfAccountTwo:=RegularDeposit register: 30*peso on: receptiveAccountTwo.
-	depositOfAccountThree:=RegularDeposit register: 5*peso on: receptiveAccountThree .
+	depositOfAccountOne := RegularDeposit register: 10*peso on: receptiveAccountOne .
+	depositOfAccountTwo := RegularDeposit register: 30*peso on: receptiveAccountTwo.
+	depositOfAccountThree := RegularDeposit register: 5*peso on: receptiveAccountThree .
 	
-	portfolioWithMultipleAccounts := Portfolio new.
-	portfolioWithMultipleAccounts addToPortfolio: receptiveAccountOne .
-	portfolioWithMultipleAccounts addToPortfolio: receptiveAccountTwo .
-	portfolioWithMultipleAccounts addToPortfolio: receptiveAccountThree.
+	transactionsOfAccountsOneTwoAndThree := OrderedCollection with: depositOfAccountOne  with: depositOfAccountTwo with: depositOfAccountThree .
 	
+	portfolioWithNoAccounts := Portfolio new.
+	
+	portfolioWithOneAccount:= Portfolio new addToPortfolio: receptiveAccountOne.
+
+	portfolioWithMultipleAccounts := Portfolio new addToPortfolio: receptiveAccountOne ; addToPortfolio: receptiveAccountTwo ; addToPortfolio: receptiveAccountThree.
+
 	portfolioWithPorfolio := Portfolio new addToPortfolio: portfolioWithMultipleAccounts .
 	
 	
 	! !
 
 
-!PortfolioTest methodsFor: 'test - helper' stamp: 'pb 11/28/2021 03:18:02'!
-assertThatPortfolioWithMultipleAccountsHasRegisteredAllOfTheTransactions
+!PortfolioTest methodsFor: 'test - helper' stamp: 'MV 11/29/2021 00:00:06'!
+assertThatPortfolio: aPortfolio hasRegisteredAllOfItsTransactionsFrom: aCollectionOfTransactions
 
-	self assert: (portfolioWithMultipleAccounts hasRegistered: depositOfAccountOne ) .
-	self assert: (portfolioWithMultipleAccounts hasRegistered: depositOfAccountTwo ) .
-	self assert: (portfolioWithMultipleAccounts hasRegistered: depositOfAccountThree ) .
-	 ! !
-
-!PortfolioTest methodsFor: 'test - helper' stamp: 'pb 11/28/2021 03:16:49'!
-assertThatPortfolioWithOneAccountHasRegisteredATransaction
-
-	self assert: (portfolioWithOneAccount hasRegistered: depositOfAccountOne ).
-	 ! !
+	aCollectionOfTransactions do: [:each | self assert: (aPortfolio hasRegistered: each) ].! !
 
 !PortfolioTest methodsFor: 'test - helper' stamp: 'pb 11/28/2021 03:10:02'!
 assertThatTotalTransactionsAreTheOnesExpectedFor: aPortfolio 
@@ -253,10 +247,12 @@ test06TransferenceOfANegativeAmountIsInvalid
 	
 	self should: [Transference from: originReceptiveAccount to: destinationReceptiveAccount for: -1000*peso.] raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'pb 11/25/2021 01:57:01'!
+!TransferenceTest methodsFor: 'tests' stamp: 'MV 11/29/2021 00:04:24'!
 test07TransferenceOfAZeroAmountIsInvalid
 	
-	self should: [Transference from: originReceptiveAccount to: destinationReceptiveAccount for: 0*peso.] raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
+	self 
+		should: [Transference from: originReceptiveAccount to: destinationReceptiveAccount for: 0*peso.] 
+		raise: Error withExceptionDo: [:anError | self assert: anError messageText equals: Transference invalidTransferenceErrorDescription].! !
 
 
 !TransferenceTest methodsFor: 'setUp' stamp: 'pb 11/25/2021 01:53:36'!
@@ -354,7 +350,6 @@ initializeFor: aValue associatedTo: aTransference
 	
 	
 ! !
-
 
 
 !DepositFromTransference methodsFor: 'information' stamp: 'pb 11/25/2021 01:06:02'!
@@ -457,7 +452,6 @@ initializeFor: aValue associatedTo: aTransference
 	! !
 
 
-
 !WithdrawFromTransference methodsFor: 'information' stamp: 'MV 11/24/2021 16:41:35'!
 counterpart
 	
@@ -488,9 +482,12 @@ Object subclass: #Portfolio
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'pb 11/26/2021 02:30:24'!
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'MV 11/29/2021 00:15:41'!
 addToPortfolio: aGroupOfReceptiveAccounts 
 	
+	(contentsInPorfolio includes: aGroupOfReceptiveAccounts) ifTrue: [
+		self error: self class canNotAddPreviouslyExistingAccountInPortfolio .	
+	].
 	contentsInPorfolio add: aGroupOfReceptiveAccounts ! !
 
 !Portfolio methodsFor: 'as yet unclassified' stamp: 'pb 11/26/2021 02:31:48'!
@@ -499,12 +496,10 @@ balance
 	(contentsInPorfolio isEmpty ) ifTrue: [ ^0*peso].
 	^contentsInPorfolio sum: [:eachContent | eachContent balance].! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'pb 11/28/2021 01:42:45'!
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'MV 11/28/2021 23:33:33'!
 hasRegistered: aTransaction 
 	
-	
-	contentsInPorfolio ifEmpty:[self error: self class noAccountsNoTransactionErrorDescription ].
-	^contentsInPorfolio anySatisfy: [:eachContent | eachContent hasRegistered: aTransaction ].
+	^ contentsInPorfolio anySatisfy: [:eachContent | eachContent hasRegistered: aTransaction ].
 	! !
 
 !Portfolio methodsFor: 'as yet unclassified' stamp: 'pb 11/28/2021 02:59:01'!
@@ -529,9 +524,10 @@ initialize
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'pb 11/26/2021 02:56:38'!
-noAccountsNoTransactionErrorDescription
-	^'Todo mal'! !
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'MV 11/29/2021 00:06:42'!
+canNotAddPreviouslyExistingAccountInPortfolio
+
+	^ 'No se puede añadir una cuenta repetida en el Portfolio'! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
