@@ -191,22 +191,24 @@ setUp
 
 !classDefinition: #ReportTest category: 'ServiciosFinancieros2-Ejercicio'!
 TestCase subclass: #ReportTest
-	instanceVariableNames: 'originReceptiveAccount destinationReceptiveAccount'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'pb 11/29/2021 21:21:50'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:26:24'!
 test01AccountSummaryOfAReceptiveAccountWithoutTransactionsResultsInEmptySummary
 
-	| receptiveAccount accountSummary|
+	| receptiveAccount accountSummary expectedSummary |
 	
 	receptiveAccount := ReceptiveAccount new.
 	accountSummary:= AccountSummary of: receptiveAccount.
 	
-	self assert: (accountSummary giveSummary) isEmpty .! !
+	expectedSummary := OrderedCollection with: 'Balance = 0 * pesos'.
+	
+	self assert: accountSummary giveSummary equals: expectedSummary.! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/1/2021 21:43:40'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:25:37'!
 test02AccountSummaryOfAReceptiveAccountWithOneTransactionGivesSummaryCorrectly
 
 	| receptiveAccount accountSummary expectedSummary |
@@ -214,12 +216,12 @@ test02AccountSummaryOfAReceptiveAccountWithOneTransactionGivesSummaryCorrectly
 	receptiveAccount := ReceptiveAccount new.
 	RegularDeposit register: 10*peso on: receptiveAccount .
 	accountSummary:= AccountSummary of: receptiveAccount.
-	expectedSummary:= OrderedCollection with: 'Deposito por 10 * pesos'.
+	expectedSummary:= OrderedCollection with: 'Deposito por 10 * pesos' with: 'Balance = 10 * pesos'.
 	
 	self assert: (accountSummary giveSummary) equals: expectedSummary .! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/1/2021 21:43:48'!
-test03
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:44:58'!
+test03AccountSummaryOfAReceptiveAccountWithMultipleRegularTransactionsGivesSummaryCorrectly
 
 	| receptiveAccount accountSummary expectedSummary |
 	
@@ -227,9 +229,59 @@ test03
 	RegularDeposit register: 10*peso on: receptiveAccount .
 	RegularWithdraw register: 20*peso on: receptiveAccount .
 	accountSummary:= AccountSummary of: receptiveAccount.
-	expectedSummary:= OrderedCollection with: 'Deposito por 10 * pesos' with: 'Extracción por 20 * pesos'.
+	expectedSummary:= OrderedCollection with: 'Deposito por 10 * pesos' with: 'Extracción por 20 * pesos' with: 'Balance = -10 * pesos'.
 	
 	self assert: (accountSummary giveSummary) equals: expectedSummary .! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:45:08'!
+test04AccountSummaryOfAReceptiveAccountWithMultipleTransferenceTransactionsGivesSummaryCorrectly
+
+	| originReceptiveAccount destinationReceptiveAccount expectedSummaryOrigin expectedSummaryDestination destinationAccountSummary originAccountSummary |
+	
+	originReceptiveAccount := ReceptiveAccount new.
+	destinationReceptiveAccount := ReceptiveAccount new.
+
+	Transference from: originReceptiveAccount to: destinationReceptiveAccount for: 30*peso. 
+	Transference from: destinationReceptiveAccount to: originReceptiveAccount for: 5*peso. 
+	
+	 
+	originAccountSummary:= AccountSummary of: originReceptiveAccount .
+	destinationAccountSummary:= AccountSummary of: destinationReceptiveAccount .
+	expectedSummaryOrigin := OrderedCollection with: 'Salida por transferencia de 30 * pesos' with: 'Entrada por transferencia de 5 * pesos' with: 'Balance = -25 * pesos'.
+	expectedSummaryDestination := OrderedCollection with: 'Entrada por transferencia de 30 * pesos' with: 'Salida por transferencia de 5 * pesos' with: 'Balance = 25 * pesos'.
+	
+	self assert: originAccountSummary giveSummary equals: expectedSummaryOrigin .	
+	self assert: destinationAccountSummary giveSummary equals: expectedSummaryDestination .	! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:52:45'!
+test05TrasferNetOfAnAccountWithoutTransferencesHasValueZero
+
+	| receptiveAccount accountTransferNet expectedTransferNet |
+	
+	receptiveAccount := ReceptiveAccount new.
+	accountTransferNet := TransferNet of: receptiveAccount.
+	RegularDeposit register: 10*peso on: receptiveAccount .
+	RegularWithdraw register: 40*peso on: receptiveAccount .
+	
+	expectedTransferNet := 0*peso.
+	
+	self assert: accountTransferNet giveNet equals: expectedTransferNet .
+	! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:59:48'!
+test06TrasferNetOfAnAccountWithWithdrawFromTransferenceHasCorrectValue
+
+	| originAccount accountTransferNet expectedTransferNet destinationAccount |
+	
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	Transference from: originAccount to: destinationAccount for: 10*peso.
+	
+	accountTransferNet := TransferNet of: originAccount.
+	expectedTransferNet := -10*peso.
+	
+	self assert: expectedTransferNet  equals: accountTransferNet giveNet.
+	! !
 
 
 !classDefinition: #TransferenceTest category: 'ServiciosFinancieros2-Ejercicio'!
@@ -320,25 +372,27 @@ Object subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!AccountSummary methodsFor: 'initialization' stamp: 'MV 12/1/2021 21:52:11'!
+!AccountSummary methodsFor: 'initialization' stamp: 'MV 12/2/2021 03:05:52'!
 initializeOf: aReceptiveAccount 
 	
 	receptiveAccount := aReceptiveAccount.
 	summaryOfAccountTransactions:= OrderedCollection new .
-	receptiveAccount transactions do:[:each | 
-		(each isKindOf: RegularDeposit) ifTrue: [summaryOfAccountTransactions add: 'Deposito por ', each value asString ].
-		(each isKindOf: RegularWithdraw ) ifTrue: [summaryOfAccountTransactions add: 'Extracción por ', each value asString ].
-		(each isKindOf: DepositFromTransference ) ifTrue: [summaryOfAccountTransactions add: 'Entrada por transferencia ', each value asString ].
-		(each isKindOf: WithdrawFromTransference ) ifTrue: [summaryOfAccountTransactions add: 'Salida por transferencia ', each value asString ].
-		 ]
-	
+	receptiveAccount transactions do: [:eachTransaction | 
+		eachTransaction getFormatedToBeAddedTo: self.
+	].
+	summaryOfAccountTransactions add: 'Balance = ', receptiveAccount balance asString .
+
 	! !
 
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MV 12/1/2021 21:49:18'!
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:59:38'!
+addToSummary: aString
+
+	summaryOfAccountTransactions add: aString.! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 02:46:20'!
 giveSummary
 	
-	(receptiveAccount transactions) ifEmpty: [^summaryOfAccountTransactions ].
 	^summaryOfAccountTransactions .! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -370,6 +424,12 @@ value
 handleHowDoesThisTransactionAffectBalance
 
 	self subclassResponsibility.! !
+
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:05:52'!
+getFormatedToBeAddedTo: anAccountSummary
+
+	self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -427,6 +487,12 @@ handleHowDoesThisTransactionAffectBalance
 
 	^ self value! !
 
+
+!DepositFromTransference methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:05:52'!
+getFormatedToBeAddedTo: anAccountSummary
+	
+	anAccountSummary addToSummary: 'Entrada por transferencia de ', self value asString .! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'DepositFromTransference class' category: 'ServiciosFinancieros2-Ejercicio'!
@@ -457,6 +523,12 @@ handleHowDoesThisTransactionAffectBalance
 
 	^ self value! !
 
+
+!RegularDeposit methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:05:52'!
+getFormatedToBeAddedTo: anAccountSummary
+	
+	anAccountSummary addToSummary: 'Deposito por ', self value asString! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'RegularDeposit class' category: 'ServiciosFinancieros2-Ejercicio'!
@@ -486,6 +558,12 @@ initializeFor: aValue
 handleHowDoesThisTransactionAffectBalance
 
 	^ value negated! !
+
+
+!RegularWithdraw methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:05:52'!
+getFormatedToBeAddedTo: anAccountSummary
+	
+	anAccountSummary addToSummary: 'Extracción por ', self value asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -526,6 +604,12 @@ counterpart
 handleHowDoesThisTransactionAffectBalance
 
 	^ value negated! !
+
+
+!WithdrawFromTransference methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:05:52'!
+getFormatedToBeAddedTo: anAccountSummary
+	
+	anAccountSummary addToSummary: 'Salida por transferencia de ', self value asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -653,10 +737,10 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'pb 11/26/2021 02:37:48'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MV 12/2/2021 02:21:52'!
 balance
 
-	^transactions sum: [ :aTransaction | aTransaction handleHowDoesThisTransactionAffectBalance ] ifEmpty: [ 0 ]
+	^transactions sum: [ :aTransaction | aTransaction handleHowDoesThisTransactionAffectBalance ] ifEmpty: [ 0*peso ]
 	
 	
 	! !
@@ -687,6 +771,39 @@ includes: aFinancialContract
 	"Una cuenta está incluída en otra sí y solo sí son la misma cuenta. Si el contrato financiero es un Portfolio, no van a ser iguales"
 	^ self = aFinancialContract .
 	! !
+
+
+!classDefinition: #TransferNet category: 'ServiciosFinancieros2-Ejercicio'!
+Object subclass: #TransferNet
+	instanceVariableNames: 'receptiveAccount'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 04:20:04'!
+giveNet
+	
+	"receptiveAccount transactions isEmpty ifTrue: [^ 0*peso]"
+	(receptiveAccount transactions noneSatisfy: [:each | each isKindOf: WithdrawFromTransference .]) ifTrue: [^ 0*peso].
+	
+	^ receptiveAccount transactions sum: [:each | (each isKindOf: WithdrawFromTransference) ifTrue: ["each handleHowDoesThisTransactionAffectBalance" each value negated ] ].
+	! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:48:28'!
+initializeOf: aReceptiveAccount 
+	
+	receptiveAccount := aReceptiveAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransferNet class' category: 'ServiciosFinancieros2-Ejercicio'!
+TransferNet class
+	instanceVariableNames: ''!
+
+!TransferNet class methodsFor: 'as yet unclassified' stamp: 'MV 12/2/2021 03:47:53'!
+of: aReceptiveAccount 
+
+	^self new initializeOf: aReceptiveAccount .! !
 
 
 !classDefinition: #Transference category: 'ServiciosFinancieros2-Ejercicio'!
